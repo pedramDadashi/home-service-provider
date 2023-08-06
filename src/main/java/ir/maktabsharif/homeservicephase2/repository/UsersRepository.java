@@ -8,5 +8,12 @@ import java.util.Optional;
 @Repository
 public interface UsersRepository<E extends Users> extends BaseRepository<E,Long> {
 
+    boolean existsByEmail(String email);
+
     Optional<E> findByEmail(String email);
+
+    void editPassword(String email, String newPassword);
+
+    void updateCredit(String email, Long newCredit);
+
 }

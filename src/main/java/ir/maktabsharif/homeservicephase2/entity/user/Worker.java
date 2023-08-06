@@ -26,7 +26,7 @@ import java.util.Set;
 public class Worker extends Users {
 
     private String image;
-    private Integer score;
+    private Byte score;
     @Enumerated(value = EnumType.STRING)
     private WorkerStatus status;
     @ManyToMany(mappedBy = "workerSet")

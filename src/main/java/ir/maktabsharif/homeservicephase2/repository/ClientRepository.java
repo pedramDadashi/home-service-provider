@@ -10,15 +10,18 @@ import java.util.Optional;
 @Repository
 public interface ClientRepository extends UsersRepository<Client> {
 
-    @Query(" update Client c set c.password = :newPassword where c.email = :email")
-    int editPassword(String email, String newPassword);
-
+    @Override
     boolean existsByEmail(String email);
-
-    @Query("update Client c set c.credit = :newCredit where c.id = :email")
-    int updateCredit(String email, Long newCredit);
 
     @Override
     Optional<Client> findByEmail(String email);
+
+    @Override
+    @Query(" update Client c set c.password = :newPassword where c.email = :email")
+    void editPassword(String email, String newPassword);
+
+    @Override
+    @Query("update Client c set c.credit = :newCredit where c.id = :email")
+    void updateCredit(String email, Long newCredit);
 
 }
