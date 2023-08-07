@@ -21,14 +21,14 @@ public interface WorkerRepository extends UsersRepository<Worker> {
     void editPassword(String email, String newPassword);
 
     @Override
-    @Query("update Worker w set w.credit = :newCredit where w.id = :expertId")
+    @Query("update Worker w set w.credit = :newCredit where w.email = :email")
     void updateCredit(String email, Long newCredit);
 
-    @Query(" update Worker w set w.status = :expertStatus where w.email = :expertId ")
-    void changeExpertStatus(String email, WorkerStatus workerStatus);
+    @Query(" update Worker w set w.status = :expertStatus where w.email = :email ")
+    void changeWorkerStatus(String email, WorkerStatus workerStatus);
 
     @Query(" update Worker w set w.isActive = :isActive where w.email = :email")
-    int changeExpertActivation(String email, Boolean isActive);
+    int changeWorkerActivation(String email, Boolean isActive);
 
     @Query(" update Worker w set w.score = :newScore where w.email = :email")
     int updateScore(String email, Byte newScore);

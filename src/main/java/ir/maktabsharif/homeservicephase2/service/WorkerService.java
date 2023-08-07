@@ -5,7 +5,6 @@ import ir.maktabsharif.homeservicephase2.entity.user.Worker;
 import ir.maktabsharif.homeservicephase2.entity.user.enums.WorkerStatus;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +28,7 @@ public interface WorkerService extends UsersService<Worker> {
     @Override
     void editPassword(Worker worker, String newPassword);
 
-    void changeWorkerStatus(Long workerId, WorkerStatus workerStatus);
+    void changeWorkerStatus(String workerUsername, WorkerStatus workerStatus);
 
     void signUp(Worker worker, File image);
 
@@ -37,6 +36,8 @@ public interface WorkerService extends UsersService<Worker> {
 
     void createOfferForOrder(Long workerId, Long orderId, Offer offer);
 
-    int changeWorkerActivation(Long workerId, Boolean isActive);
+    void changeWorkerActivation(String workerUsername, Boolean isActive);
+
+    boolean isExistByEmail(String email);
 
 }
