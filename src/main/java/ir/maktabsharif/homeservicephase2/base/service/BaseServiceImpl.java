@@ -2,6 +2,7 @@ package ir.maktabsharif.homeservicephase2.base.service;
 
 import ir.maktabsharif.homeservicephase2.base.entity.BaseEntity;
 import ir.maktabsharif.homeservicephase2.base.repository.BaseRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.List;
@@ -20,11 +21,13 @@ public abstract class BaseServiceImpl<E extends BaseEntity<ID>
     }
 
     @Override
+    @Transactional
     public void save(E e) {
         repository.save(e);
     }
 
     @Override
+    @Transactional
     public void delete(E e) {
         repository.delete(e);
     }
