@@ -32,11 +32,7 @@ public interface WorkerService extends UsersService<Worker> {
 
     void signUp(Worker worker, File image);
 
-    void confirmWorkerAccount(Worker worker, WorkerStatus workerStatus);
-
     void createOfferForOrder(Long workerId, Long orderId, Offer offer);
-
-    void changeWorkerActivation(String workerUsername, Boolean isActive);
 
     boolean isExistByEmail(String email);
 

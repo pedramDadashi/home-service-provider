@@ -120,7 +120,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         Validation.checkPositiveNumber(offerId);
         Optional<Offer> offer = OFFER_SERVICE.findById(offerId);
         if (offer.isEmpty())
-            throw new OfferNotExist("this offer does not exist");
+            throw new OfferNotExistException("this offer does not exist");
         OFFER_SERVICE.editIsAccept(offerId, true);
         Long orderId = offer.get().getOrder().getId();
         ORDER_SERVICE.changeOrderStatus(orderId, OrderStatus.WAITING_FOR_WORKER_SELECTION,
@@ -139,7 +139,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
                     ("the status of this order is not yet \"WAITING FOR EXPERT TO COME\"!");
         Optional<Offer> offer = OFFER_SERVICE.findOfferByOrderIdAndIsAccept(orderId, true);
         if (offer.isEmpty())
-            throw new OfferNotExist("this offer does not exist");
+            throw new OfferNotExistException("this offer does not exist");
         if (offer.get().getExecutionTime().isBefore(LocalDateTime.now()))
             throw new TimeException("the worker has not arrived at your place yet!");
         ORDER_SERVICE.changeOrderStatus(orderId, OrderStatus.WAITING_FOR_WORKER_TO_COME,
@@ -157,7 +157,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
                     ("the status of this order is not yet \"STARTED\"!");
         Optional<Offer> offer = OFFER_SERVICE.findOfferByOrderIdAndIsAccept(orderId, true);
         if (offer.isEmpty())
-            throw new OfferNotExist("this offer does not exist");
+            throw new OfferNotExistException("this offer does not exist");
         if (offer.get().getEndTime().isBefore(LocalDateTime.now()))
             throw new TimeException("the work of the worker in your place not finished yet!");
         ORDER_SERVICE.changeOrderStatus(orderId, OrderStatus.STARTED,

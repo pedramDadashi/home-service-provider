@@ -1,17 +1,15 @@
 package ir.maktabsharif.homeservicephase2.service;
 
-import ir.maktabsharif.homeservicephase2.entity.comment.Comment;
 import ir.maktabsharif.homeservicephase2.entity.job.Job;
+import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
 import ir.maktabsharif.homeservicephase2.entity.service.MainService;
 import ir.maktabsharif.homeservicephase2.entity.user.Client;
-
-import java.io.FileNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface ClientService extends UsersService<Client>  {
+public interface ClientService extends UsersService<Client> {
 
     @Override
     void save(Client client);
@@ -33,11 +31,22 @@ public interface ClientService extends UsersService<Client>  {
 
     void signUp(Client client);
 
-    List<MainService> findAllMainService() throws FileNotFoundException;
+    List<MainService> findAllMainService();
 
-    List<Job> findAllJob() throws FileNotFoundException;
+    List<Job> findAllJob();
 
     void addOrder(Client client, String jobName, Long proposedPrice,
-                  String description, LocalDateTime date, LocalDateTime time, String address);
+                  String description, LocalDateTime executionTime,
+                  LocalDateTime updateTime, String address);
+
+    List<Offer> findOfferListByOrderIdBasedOnProposedPrice(Long orderId);
+
+    List<Offer> findOfferListByOrderIdBasedOnWorkerScore(Long orderId);
+
+    void acceptOffer(Long orderId);
+
+    void changeOrderStatusAfterWorkerComes(Long orderId);
+
+    void changeOrderStatusAfterStarted(Long orderId);
 
 }

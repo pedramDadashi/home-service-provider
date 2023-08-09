@@ -38,7 +38,7 @@ public class Worker extends Users {
             , String password) {
         super(firstname, lastname, email, password, Boolean.FALSE);
         this.score=0;
-        this.status=WorkerStatus.AWAITING;
+        this.status=WorkerStatus.NEW;
     }
 
 

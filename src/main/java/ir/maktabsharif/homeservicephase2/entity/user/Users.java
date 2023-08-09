@@ -25,7 +25,7 @@ public class Users extends BaseEntity<Long> {
 
     public Users(String firstname, String lastname
             , String email, String password
-            , Boolean isActive/* ,Role role*/) {
+            , Boolean isActive) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;

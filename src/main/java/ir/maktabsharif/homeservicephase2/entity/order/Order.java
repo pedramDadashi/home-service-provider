@@ -47,6 +47,6 @@ public class Order extends BaseEntity<Long> {
         this.updateTime = updateTime;
         this.client = client;
         this.job = job;
-        this.orderStatus=OrderStatus.WAITING_FOR_EXPERT_SUGGESTION;
+        this.orderStatus=OrderStatus.WAITING_FOR_WORKER_SUGGESTION;
     }
 }

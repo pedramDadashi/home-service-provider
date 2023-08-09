@@ -20,10 +20,12 @@ public interface OfferService extends BaseService<Offer,Long> {
     @Override
     List<Offer> findAll();
 
-    List<Offer> findByOrderIdBasedOnProposedPrice(Long orderId);
+    List<Offer> findOfferListByOrderIdBasedOnProposedPrice(Long orderId);
 
-    List<Offer> findByOrderIdBasedOnExpertScore(Long orderId);
+    List<Offer> findOfferListByOrderIdBasedOnWorkerScore(Long orderId);
 
     void editIsAccept(Long offerId, Boolean isAccept);
+
+    Optional<Offer> findOfferByOrderIdAndIsAccept(Long orderId,boolean isAccept);
 
 }

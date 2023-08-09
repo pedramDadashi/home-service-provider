@@ -6,20 +6,24 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OfferRepository extends BaseRepository<Offer, Long> {
 
     @Query(" select o from Offer o where o.order.id = :orderId order by o.proposedPrice")
-    List<Offer> findByOrderIdBasedOnProposedPrice(Long orderId);
+    List<Offer> findOfferListByOrderIdBasedOnProposedPrice(Long orderId);
 
     @Query(" select o from Offer o where o.order.id = :orderId order by o.worker.score desc")
-    List<Offer> findByOrderIdBasedOnWorkerScore(Long orderId);
+    List<Offer> findOfferListByOrderIdBasedOnWorkerScore(Long orderId);
 
     @Query(" update Offer o set o.isAccept = :isAccept where o.id = :offerId")
     void editIsAccept(Long offerId, Boolean isAccept);
 
     @Query("select o from Offer o where o.worker.id = :workerId and o.isAccept = :isAccept")
-    List<Offer> findOffersByWorkerIdAndIsAccept(Long workerId, boolean isAccept);
+    List<Offer> findOfferListByWorkerIdAndIsAccept(Long workerId, boolean isAccept);
+
+    @Query("select o from Offer o where o.order.id = :orderId and o.isAccept = :isAccept")
+    Optional<Offer> findOfferByOrderIdAndIsAccept(Long orderId,boolean isAccept);
 
 }

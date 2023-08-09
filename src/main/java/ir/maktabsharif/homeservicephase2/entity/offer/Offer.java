@@ -25,6 +25,7 @@ public class Offer extends BaseEntity<Long> {
 
     private String offerName;
     private Long proposedPrice;
+    private LocalDateTime executionTime;
     @Enumerated(value = EnumType.STRING)
     private TimeType timeType;
     private Integer durationTime;
@@ -35,11 +36,12 @@ public class Offer extends BaseEntity<Long> {
     @ManyToOne
     private Worker worker;
 
-    public Offer(String offer, Long proposedPrice
+    public Offer(String offer, Long proposedPrice, LocalDateTime executionTime
             , TimeType timeType, Integer durationTime
             , LocalDateTime endTime) {
         this.offerName = offer;
         this.proposedPrice = proposedPrice;
+        this.executionTime = executionTime;
         this.timeType = timeType;
         this.durationTime = durationTime;
         this.endTime = endTime;
@@ -51,6 +53,7 @@ public class Offer extends BaseEntity<Long> {
         return "Offer {" +
                "offer='" + offerName + '\'' +
                ", proposedPrice=" + proposedPrice +
+               ", executionTime=" + executionTime +
                ", timeType=" + timeType +
                ", durationTime=" + durationTime +
                ", isAccept=" + isAccept +

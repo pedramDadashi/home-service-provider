@@ -21,7 +21,7 @@ public interface OrderService extends BaseService<Order,Long> {
     @Override
     List<Order> findAll();
 
-    List<Order> findByClientIdAndOrderStatus(Long clientId, OrderStatus orderStatus);
+    List<Order> findByClientEmailAndOrderStatus(String clientEmail, OrderStatus orderStatus);
 
     void changeOrderStatus(Long orderId, OrderStatus orderStatus, OrderStatus newOrderStatus);
 
