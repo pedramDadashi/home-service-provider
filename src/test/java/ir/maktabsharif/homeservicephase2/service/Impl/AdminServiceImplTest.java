@@ -50,6 +50,7 @@ class AdminServiceImplTest {
     @Test
     @Order(2)
     void createNewMainService() {
+        ADMIN_SERVICE.createMainService("build");
         ADMIN_SERVICE.createMainService("cleaning");
         Optional<MainService> optionalMainService =
                 MAIN_SERVICE_SERVICE.findByName("cleaning");
@@ -78,8 +79,10 @@ class AdminServiceImplTest {
     void addJob() {
         ADMIN_SERVICE.addJob("cleaning", "room",
                 30000L, "nice!");
+        ADMIN_SERVICE.addJob("build", "wall",
+                120000L, "stone");
         Optional<Job> room = JOB_SERVICE.findByName("room");
-        assertEquals("room", room.get().getName());
+        assertEquals(30000L, room.get().getBasePrice());
     }
 
     @Test
@@ -97,6 +100,7 @@ class AdminServiceImplTest {
         Optional<Worker> worker =
                 WORKER_SERVICE.findByUsername("pedadashi@gmail.com");
         ADMIN_SERVICE.addWorkerToJob("room", "pedadashi@gmail.com");
+        ADMIN_SERVICE.addWorkerToJob("wall", "milad.ah@yahoo.com");
         Job job = JOB_SERVICE.findByName("room").get();
         worker.get().getJobSet().forEach(jobb -> {
             if (Objects.equals(jobb.getId(), job.getId()))
@@ -108,7 +112,6 @@ class AdminServiceImplTest {
     @Test
     @Order(9)
     void findAllMainService() {
-        ADMIN_SERVICE.createMainService("build");
         List<MainService> allMainService = ADMIN_SERVICE.findAllMainService();
         int count = (int) allMainService.stream().
                 filter(Objects::nonNull).count();
@@ -119,8 +122,6 @@ class AdminServiceImplTest {
     @Test
     @Order(10)
     void findAllJob() {
-        ADMIN_SERVICE.addJob("build", "wall",
-                120000L, "stone");
         List<Job> allJob = ADMIN_SERVICE.findAllJob();
         int count = (int) allJob.stream().
                 filter(Objects::nonNull).count();
@@ -139,11 +140,9 @@ class AdminServiceImplTest {
     @Test
     @Order(12)
     void findAllWorkers() {
-        WORKER_SERVICE.save(new Worker("milad", "ahmadian",
-                "milad.ah@yahoo.com", "4567#poiu"));
         List<Worker> allWorkers = ADMIN_SERVICE.findAllWorkers();
         int count = (int) allWorkers.stream().
-                filter(ms -> ms != null).count();
+                filter(Objects::nonNull).count();
         assertEquals(2, count);
     }
 
@@ -153,6 +152,10 @@ class AdminServiceImplTest {
         WORKER_SERVICE.save(new Worker("pedram", "dadashi",
                 "pedadashi@gmail.com", "1234@qwer"));
         ADMIN_SERVICE.changeWorkerStatus("pedadashi@gmail.com",
+                WorkerStatus.CONFIRMED);
+        WORKER_SERVICE.save(new Worker("milad", "ahmadian",
+                "milad.ah@yahoo.com", "4567#poiu"));
+        ADMIN_SERVICE.changeWorkerStatus("milad.ah@yahoo.com",
                 WorkerStatus.CONFIRMED);
         assertEquals(WORKER_SERVICE.findByUsername("pedadashi@gmail.com").
                 get().getStatus(), WorkerStatus.CONFIRMED);
