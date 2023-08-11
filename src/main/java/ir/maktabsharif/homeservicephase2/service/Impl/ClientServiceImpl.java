@@ -50,10 +50,11 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
     @Override
     public void editPassword(Client client, String newPassword) {
         Validation.checkPassword(newPassword);
-        findByUsername(client.getEmail());
+        Optional<Client> client1 = findByUsername(client.getEmail());
         if (client.getPassword().equals(newPassword))
             throw new DuplicatePasswordException("this password has duplicate!");
-        repository.editPassword(client.getEmail(), newPassword);
+        client1.get().setPassword(newPassword);
+        repository.save(client1.get());
     }
 
     @Override
@@ -92,7 +93,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         Optional<Job> job = JOB_SERVICE.findByName(jobName);
         if (job.isEmpty())
             throw new JobIsNotExistException("this job does not exist!");
-        if (job.get().getBasePrice() < proposedPrice)
+        if (job.get().getBasePrice() >= proposedPrice)
             throw new AmountLessExseption("this proposed price is less than base price of the job!");
         Optional<Client> client1 = findByUsername(client.getEmail());
         if (client1.isEmpty())
@@ -123,7 +124,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
             throw new OfferNotExistException("this offer does not exist");
         OFFER_SERVICE.editIsAccept(offerId, true);
         Long orderId = offer.get().getOrder().getId();
-        ORDER_SERVICE.changeOrderStatus(orderId, OrderStatus.WAITING_FOR_WORKER_SELECTION,
+        ORDER_SERVICE.changeOrderStatus(orderId,
                 OrderStatus.WAITING_FOR_WORKER_TO_COME);
 
     }
@@ -142,7 +143,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
             throw new OfferNotExistException("this offer does not exist");
         if (offer.get().getExecutionTime().isBefore(LocalDateTime.now()))
             throw new TimeException("the worker has not arrived at your place yet!");
-        ORDER_SERVICE.changeOrderStatus(orderId, OrderStatus.WAITING_FOR_WORKER_TO_COME,
+        ORDER_SERVICE.changeOrderStatus(orderId,
                 OrderStatus.STARTED);
     }
 
@@ -160,7 +161,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
             throw new OfferNotExistException("this offer does not exist");
         if (offer.get().getEndTime().isBefore(LocalDateTime.now()))
             throw new TimeException("the work of the worker in your place not finished yet!");
-        ORDER_SERVICE.changeOrderStatus(orderId, OrderStatus.STARTED,
+        ORDER_SERVICE.changeOrderStatus(orderId,
                 OrderStatus.DONE);
     }
 }

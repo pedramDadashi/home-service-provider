@@ -8,7 +8,10 @@ import ir.maktabsharif.homeservicephase2.entity.user.Worker;
 import ir.maktabsharif.homeservicephase2.entity.user.enums.WorkerStatus;
 import ir.maktabsharif.homeservicephase2.exception.*;
 import ir.maktabsharif.homeservicephase2.repository.AdminRepository;
-import ir.maktabsharif.homeservicephase2.service.*;
+import ir.maktabsharif.homeservicephase2.service.AdminService;
+import ir.maktabsharif.homeservicephase2.service.JobService;
+import ir.maktabsharif.homeservicephase2.service.MainServiceService;
+import ir.maktabsharif.homeservicephase2.service.WorkerService;
 import ir.maktabsharif.homeservicephase2.util.Validation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -118,9 +121,14 @@ public class AdminServiceImpl extends BaseServiceImpl<Admin, Long, AdminReposito
         Validation.checkText(jobName);
         Validation.checkPositiveNumber(basePrice);
         Validation.checkText(description);
-        if (JOB_SERVICE.findByName(jobName).isEmpty())
+        Optional<Job> job = JOB_SERVICE.findByName(jobName);
+        if (job.isEmpty())
             throw new JobIsNotExistException("this job dose not exist!");
-        JOB_SERVICE.editBasePriceAndDescription(jobName, basePrice, description);
+        job.get().setBasePrice(basePrice);
+        job.get().setDescription(description);
+        JOB_SERVICE.save(job.get());
+//        JOB_SERVICE.editBasePriceAndDescription(jobName, basePrice, description);
+
     }
 
     @Override

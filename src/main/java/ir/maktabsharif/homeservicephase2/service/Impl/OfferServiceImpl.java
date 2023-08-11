@@ -30,7 +30,9 @@ public class OfferServiceImpl extends BaseServiceImpl<Offer, Long, OfferReposito
 
     @Override
     public void editIsAccept(Long offerId, Boolean isAccept) {
-        repository.editIsAccept(offerId, isAccept);
+        Offer offer = repository.findById(offerId).get();
+        offer.setIsAccept(isAccept);
+        repository.save(offer);
     }
 
     @Override

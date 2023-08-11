@@ -57,7 +57,9 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
 
     @Override
     public void changeWorkerStatus(String workerUsername, WorkerStatus workerStatus) {
-        repository.changeWorkerStatus(workerUsername, workerStatus);
+        Optional<Worker> worker = repository.findByEmail(workerUsername);
+        worker.get().setStatus(workerStatus);
+        repository.save(worker.get());
     }
 
     @Override
@@ -109,7 +111,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
         offer.setOrder(order.get());
         OFFER_SERVICE.save(offer);
         if (order.get().getOrderStatus().equals(OrderStatus.WAITING_FOR_WORKER_SUGGESTION))
-            ORDER_SERVICE.changeOrderStatus(orderId, OrderStatus.WAITING_FOR_WORKER_SUGGESTION,
+            ORDER_SERVICE.changeOrderStatus(orderId,
                     OrderStatus.WAITING_FOR_WORKER_SELECTION);
     }
 

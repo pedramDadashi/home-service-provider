@@ -8,6 +8,7 @@ import ir.maktabsharif.homeservicephase2.service.OrderService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderServiceImpl extends BaseServiceImpl<Order, Long, OrderRepository>
@@ -24,8 +25,10 @@ public class OrderServiceImpl extends BaseServiceImpl<Order, Long, OrderReposito
     }
 
     @Override
-    public void changeOrderStatus(Long orderId, OrderStatus orderStatus, OrderStatus newOrderStatus) {
-        repository.changeOrderStatus(orderId, orderStatus, newOrderStatus);
+    public void changeOrderStatus(Long orderId, OrderStatus newOrderStatus) {
+        Optional<Order> order = repository.findById(orderId);
+        order.get().setOrderStatus(newOrderStatus);
+        repository.save(order.get());
     }
 
     @Override
