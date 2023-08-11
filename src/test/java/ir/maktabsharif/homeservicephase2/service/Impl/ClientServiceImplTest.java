@@ -7,6 +7,8 @@ import ir.maktabsharif.homeservicephase2.entity.order.OrderStatus;
 import ir.maktabsharif.homeservicephase2.entity.service.MainService;
 import ir.maktabsharif.homeservicephase2.entity.user.Client;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
+import ir.maktabsharif.homeservicephase2.exception.EmailFormatException;
+import ir.maktabsharif.homeservicephase2.exception.PasswordFormatException;
 import ir.maktabsharif.homeservicephase2.service.ClientService;
 import ir.maktabsharif.homeservicephase2.service.OfferService;
 import ir.maktabsharif.homeservicephase2.service.OrderService;
@@ -23,8 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -170,5 +171,25 @@ class ClientServiceImplTest {
         CLIENT_SERVICE.changeOrderStatusAfterStarted(id);
         assertEquals(ORDER_SERVICE.findById(id).get().getOrderStatus(),
                 OrderStatus.DONE);
+    }
+
+    @Test
+    @Order(13)
+    void signUpWithInvalidEmail() {
+        assertThrows(EmailFormatException.class, () -> {
+            Client client = new Client("ali", "bondar",
+                    "ali.bongmail.com", "4582!pOikj");
+            CLIENT_SERVICE.signUp(client);
+        });
+    }
+
+    @Test
+    @Order(14)
+    void signUpWithInvalidPassword() {
+        assertThrows(PasswordFormatException.class, () -> {
+            Client client = new Client("ali", "bondar",
+                    "alii.bon@gmail.com", "4582ikj");
+            CLIENT_SERVICE.signUp(client);
+        });
     }
 }
