@@ -99,7 +99,8 @@ class ClientServiceImplTest {
     @Order(9)
     void findOfferListByOrderIdBasedOnProposedPrice() {
         List<Offer> offerList =
-                CLIENT_SERVICE.findOfferListByOrderIdBasedOnProposedPrice(1L);
+                CLIENT_SERVICE.findOfferListByOrderIdBasedOnProposedPrice(
+                        ORDER_SERVICE.findAll().get(0).getId());
         assertTrue((offerList.get(offerList.size() - 1).getProposedPrice()) >
                    (offerList.get(0).getProposedPrice()));
     }
@@ -114,7 +115,8 @@ class ClientServiceImplTest {
         worker1.setScore(Byte.parseByte("3"));
         WORKER_SERVICE.save(worker1);
         List<Offer> offerList =
-                CLIENT_SERVICE.findOfferListByOrderIdBasedOnWorkerScore(1L);
+                CLIENT_SERVICE.findOfferListByOrderIdBasedOnWorkerScore(
+                        ORDER_SERVICE.findAll().get(0).getId());
         assertTrue((offerList.get(offerList.size() - 1).getWorker().getScore()) <
                    (offerList.get(0).getWorker().getScore()));
     }
@@ -127,7 +129,7 @@ class ClientServiceImplTest {
                 TimeType.HOUR, 4,
                 LocalDateTime.of(2024, 1, 1, 18, 11));
         Optional<ir.maktabsharif.homeservicephase2.entity.order.Order> order =
-                ORDER_SERVICE.findById(1L);
+                Optional.of(ORDER_SERVICE.findAll().get(0));
         offer.setOrder(order.get());
         Optional<Worker> worker = WORKER_SERVICE.findByUsername("pedadashi@gmail.com");
         offer.setWorker(worker.get());
@@ -146,22 +148,27 @@ class ClientServiceImplTest {
 
     @Test
     @Order(8)
-    void acceptOffer(){
-        CLIENT_SERVICE.acceptOffer(102L);
-        assertTrue(OFFER_SERVICE.findById(102L).get().getIsAccept());
+    void acceptOffer() {
+        Long id = OFFER_SERVICE.findAll().get(0).getId();
+        CLIENT_SERVICE.acceptOffer(id);
+        assertTrue(OFFER_SERVICE.findById(id).get().getIsAccept());
     }
+
     @Test
+    @Order(11)
     void changeOrderStatusAfterWorkerComes() {
-              CLIENT_SERVICE.changeOrderStatusAfterWorkerComes(1L);
-        assertEquals(ORDER_SERVICE.findById(1L).get().getOrderStatus(),
+        Long id = ORDER_SERVICE.findAll().get(0).getId();
+        CLIENT_SERVICE.changeOrderStatusAfterWorkerComes(id);
+        assertEquals(ORDER_SERVICE.findById(id).get().getOrderStatus(),
                 OrderStatus.STARTED);
     }
 
     @Test
+    @Order(12)
     void changeOrderStatusAfterStarted() {
-         CLIENT_SERVICE.changeOrderStatusAfterStarted(1L);
-        assertEquals(ORDER_SERVICE.findById(1L).get().getOrderStatus(),
+        Long id = ORDER_SERVICE.findAll().get(0).getId();
+        CLIENT_SERVICE.changeOrderStatusAfterStarted(id);
+        assertEquals(ORDER_SERVICE.findById(id).get().getOrderStatus(),
                 OrderStatus.DONE);
-
     }
 }
