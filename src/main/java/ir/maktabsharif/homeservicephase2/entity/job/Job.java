@@ -5,22 +5,14 @@ import ir.maktabsharif.homeservicephase2.base.entity.BaseEntity;
 import ir.maktabsharif.homeservicephase2.entity.order.Order;
 import ir.maktabsharif.homeservicephase2.entity.service.MainService;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Entity
@@ -37,7 +29,7 @@ public class Job extends BaseEntity<Long>
     private String description;
     @ManyToOne
     private MainService mainService;
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     private Set<Worker> workerSet = new HashSet<>();
     @OneToMany(mappedBy = "job")
     private List<Order> orderList = new ArrayList<>();
@@ -48,7 +40,17 @@ public class Job extends BaseEntity<Long>
         this.description = description;
         this.mainService = mainService;
     }
-
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Job that = (Job) o;
+        return Objects.equals(description, that.description);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(description);
+    }
     @Override
     public String toString() {
         return "SubServiceService{" +

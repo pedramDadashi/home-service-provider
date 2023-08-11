@@ -1,9 +1,7 @@
 package ir.maktabsharif.homeservicephase2.entity.user;
 
 
-
 import ir.maktabsharif.homeservicephase2.entity.job.Job;
-
 import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
 import ir.maktabsharif.homeservicephase2.entity.user.enums.WorkerStatus;
 import jakarta.persistence.*;
@@ -13,7 +11,6 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-
 import java.util.List;
 import java.util.Set;
 
@@ -29,7 +26,7 @@ public class Worker extends Users {
     private Byte score;
     @Enumerated(value = EnumType.STRING)
     private WorkerStatus status;
-    @ManyToMany(mappedBy = "workerSet")
+    @ManyToMany(mappedBy = "workerSet",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     private Set<Job> jobSet = new HashSet<>();
     @OneToMany(mappedBy = "worker")
     private List<Offer> offerList = new ArrayList<>();
