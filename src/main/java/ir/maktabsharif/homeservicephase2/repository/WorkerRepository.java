@@ -2,7 +2,6 @@ package ir.maktabsharif.homeservicephase2.repository;
 
 import ir.maktabsharif.homeservicephase2.base.repository.BaseRepository;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
-import ir.maktabsharif.homeservicephase2.entity.user.enums.WorkerStatus;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -20,7 +19,7 @@ public interface WorkerRepository extends BaseRepository<Worker,Long> {
     @Query(" update Worker w set w.password = :newPassword where w.email = :email")
     void editPassword(String email, String newPassword);
 
-    @Query("update Worker w set w.status = :workerStatus where w.email = :email")
-    void changeWorkerStatus(String email, WorkerStatus workerStatus);
+//    @Query("update Worker w set w.status = :workerStatus where w.email = :email")
+//    void changeWorkerStatus(String email, WorkerStatus workerStatus);
 
 }

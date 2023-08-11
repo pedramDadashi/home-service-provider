@@ -16,8 +16,8 @@ public interface OrderRepository extends BaseRepository<Order, Long> {
     @Query("select o from Order o where o.client.email = :clientEmail and o.orderStatus = :orderStatus")
     List<Order> findOrderListByClientEmailAndOrderStatus(String clientEmail, OrderStatus orderStatus);
 
-    @Query(" update Order o set o.orderStatus = :newOrderStatus where o.id = :orderId and o.orderStatus = :orderStatus")
-    void changeOrderStatus(Long orderId, OrderStatus orderStatus, OrderStatus newOrderStatus);
+    @Query(" update Order o set o.orderStatus = :newOrderStatus where o.id = :orderId")
+    void changeOrderStatus(Long orderId,  OrderStatus newOrderStatus);
 
     @Query(" select o from Order o where o.job.id = :jobId and (o.orderStatus = :orderStatusOne or o.orderStatus = :orderStatusTwo)")
     List<Order> findByJobIdAndOrderStatus(Long jobId, OrderStatus orderStatusOne, OrderStatus orderStatusTwo);

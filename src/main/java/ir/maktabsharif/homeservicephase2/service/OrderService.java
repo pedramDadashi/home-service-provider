@@ -23,7 +23,7 @@ public interface OrderService extends BaseService<Order,Long> {
 
     List<Order> findByClientEmailAndOrderStatus(String clientEmail, OrderStatus orderStatus);
 
-    void changeOrderStatus(Long orderId, OrderStatus orderStatus, OrderStatus newOrderStatus);
+    void changeOrderStatus(Long orderId, OrderStatus newOrderStatus);
 
     List<Order> findByJobIdAndOrderStatus(Long jobId, OrderStatus orderStatusOne, OrderStatus orderStatusTwo);
 

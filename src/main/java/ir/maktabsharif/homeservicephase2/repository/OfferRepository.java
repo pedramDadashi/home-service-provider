@@ -17,8 +17,8 @@ public interface OfferRepository extends BaseRepository<Offer, Long> {
     @Query(" select o from Offer o where o.order.id = :orderId order by o.worker.score desc")
     List<Offer> findOfferListByOrderIdBasedOnWorkerScore(Long orderId);
 
-    @Query(" update Offer o set o.isAccept = :isAccept where o.id = :offerId")
-    void editIsAccept(Long offerId, Boolean isAccept);
+//    @Query(" update Offer o set o.isAccept = :isAccept where o.id = :offerId")
+//    void editIsAccept(Long offerId, Boolean isAccept);
 
     @Query("select o from Offer o where o.worker.id = :workerId and o.isAccept = :isAccept")
     List<Offer> findOfferListByWorkerIdAndIsAccept(Long workerId, boolean isAccept);

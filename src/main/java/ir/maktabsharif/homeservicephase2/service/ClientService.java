@@ -43,7 +43,7 @@ public interface ClientService extends UsersService<Client> {
 
     List<Offer> findOfferListByOrderIdBasedOnWorkerScore(Long orderId);
 
-    void acceptOffer(Long orderId);
+    void acceptOffer(Long offerId);
 
     void changeOrderStatusAfterWorkerComes(Long orderId);
 
