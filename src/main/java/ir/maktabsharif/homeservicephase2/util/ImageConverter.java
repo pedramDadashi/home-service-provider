@@ -19,7 +19,7 @@ public class ImageConverter {
 
     public static File getFileImage(String imageString) throws IOException {
         byte[] imageArray = Base64.getDecoder().decode(imageString);
-        File image = new File("workerImage");
+        File image = new File("workerImage.jpg");
         FileUtils.writeByteArrayToFile(image, imageArray);
         return image;
     }

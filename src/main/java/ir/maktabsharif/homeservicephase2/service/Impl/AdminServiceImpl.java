@@ -1,13 +1,10 @@
 package ir.maktabsharif.homeservicephase2.service.Impl;
 
-import ir.maktabsharif.homeservicephase2.base.service.BaseServiceImpl;
 import ir.maktabsharif.homeservicephase2.entity.job.Job;
 import ir.maktabsharif.homeservicephase2.entity.service.MainService;
-import ir.maktabsharif.homeservicephase2.entity.user.Admin;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
 import ir.maktabsharif.homeservicephase2.entity.user.enums.WorkerStatus;
 import ir.maktabsharif.homeservicephase2.exception.*;
-import ir.maktabsharif.homeservicephase2.repository.AdminRepository;
 import ir.maktabsharif.homeservicephase2.service.AdminService;
 import ir.maktabsharif.homeservicephase2.service.JobService;
 import ir.maktabsharif.homeservicephase2.service.MainServiceService;
@@ -20,17 +17,15 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class AdminServiceImpl extends BaseServiceImpl<Admin, Long, AdminRepository>
-        implements AdminService {
+public class AdminServiceImpl implements AdminService {
 
     private final MainServiceService MAIN_SERVICE_SERVICE;
     private final JobService JOB_SERVICE;
     private final WorkerService WORKER_SERVICE;
 
     @Autowired
-    public AdminServiceImpl(AdminRepository repository, MainServiceService MAIN_SERVICE_SERVICE,
+    public AdminServiceImpl(MainServiceService MAIN_SERVICE_SERVICE,
                             JobService JOB_SERVICE, WorkerService WORKER_SERVICE) {
-        super(repository);
         this.MAIN_SERVICE_SERVICE = MAIN_SERVICE_SERVICE;
         this.JOB_SERVICE = JOB_SERVICE;
         this.WORKER_SERVICE = WORKER_SERVICE;
