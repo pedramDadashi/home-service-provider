@@ -8,4 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CommentRepository extends BaseRepository<Comment,Long> {
 
+//    @Query("select c from Comment c where c.order= :expert")
+//    List<Comment> findByExpert(Worker worker);
+
 }

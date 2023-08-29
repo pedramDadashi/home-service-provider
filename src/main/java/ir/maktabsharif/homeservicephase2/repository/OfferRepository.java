@@ -2,6 +2,8 @@ package ir.maktabsharif.homeservicephase2.repository;
 
 import ir.maktabsharif.homeservicephase2.base.repository.BaseRepository;
 import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
+import ir.maktabsharif.homeservicephase2.entity.order.Order;
+import ir.maktabsharif.homeservicephase2.entity.user.Worker;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -25,5 +27,11 @@ public interface OfferRepository extends BaseRepository<Offer, Long> {
 
     @Query("select o from Offer o where o.order.id = :orderId and o.isAccept = :isAccept")
     Optional<Offer> findOfferByOrderIdAndIsAccept(Long orderId,boolean isAccept);
+
+    List<Offer> findAllByOrder(Order order);
+
+    List<Offer> findAllByWorker(Worker worker);
+
+//    List<Offer> findOffersByExpertAndOfferStatus(Expert expert, OfferStatus offerStatus);
 
 }

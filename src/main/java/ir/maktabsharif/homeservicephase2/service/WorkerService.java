@@ -1,5 +1,7 @@
 package ir.maktabsharif.homeservicephase2.service;
 
+import ir.maktabsharif.homeservicephase2.dto.request.FilterWorkerDTO;
+import ir.maktabsharif.homeservicephase2.dto.response.FilterWorkerResponseDTO;
 import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
 import ir.maktabsharif.homeservicephase2.entity.user.enums.WorkerStatus;
@@ -36,4 +38,5 @@ public interface WorkerService extends UsersService<Worker> {
 
     boolean isExistByEmail(String email);
 
+    List<FilterWorkerResponseDTO> workerFilter(FilterWorkerDTO workerDTO);
 }

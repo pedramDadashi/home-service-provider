@@ -5,6 +5,7 @@ import ir.maktabsharif.homeservicephase2.entity.job.Job;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -14,6 +15,6 @@ public interface JobRepository extends BaseRepository<Job, Long> {
 
     void deleteByName(String jobName);
 
-    @Query(" update Job j set j.basePrice = :basePrice, j.description = :description where j.name = :jobName")
-    void editBasePriceAndDescription(String jobName, Long basePrice, String description);
+    @Query("select j from Job j where j.mainService.id = :mainServiceId")
+    List<Job> findByMainServiceId(Long mainServiceId);
 }

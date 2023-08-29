@@ -23,10 +23,10 @@ import java.util.Set;
 public class Worker extends Users {
 
     private String image;
-    private Byte score;
+    private int score;
     @Enumerated(value = EnumType.STRING)
     private WorkerStatus status;
-    @ManyToMany(mappedBy = "workerSet",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "workerSet", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<Job> jobSet = new HashSet<>();
     @OneToMany(mappedBy = "worker")
     private List<Offer> offerList = new ArrayList<>();
@@ -34,8 +34,8 @@ public class Worker extends Users {
     public Worker(String firstname, String lastname, String email
             , String password) {
         super(firstname, lastname, email, password, Boolean.FALSE);
-        this.score=0;
-        this.status=WorkerStatus.NEW;
+        this.score = 0;
+        this.status = WorkerStatus.NEW;
     }
 
 

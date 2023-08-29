@@ -1,45 +1,65 @@
 package ir.maktabsharif.homeservicephase2.service.Impl;
 
 import ir.maktabsharif.homeservicephase2.base.service.BaseServiceImpl;
+import ir.maktabsharif.homeservicephase2.dto.request.FilterWorkerDTO;
+import ir.maktabsharif.homeservicephase2.dto.response.FilterWorkerResponseDTO;
 import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
 import ir.maktabsharif.homeservicephase2.entity.order.Order;
 import ir.maktabsharif.homeservicephase2.entity.order.OrderStatus;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
 import ir.maktabsharif.homeservicephase2.entity.user.enums.WorkerStatus;
 import ir.maktabsharif.homeservicephase2.exception.*;
+import ir.maktabsharif.homeservicephase2.mapper.WorkerMapper;
 import ir.maktabsharif.homeservicephase2.repository.WorkerRepository;
 import ir.maktabsharif.homeservicephase2.service.OfferService;
 import ir.maktabsharif.homeservicephase2.service.OrderService;
 import ir.maktabsharif.homeservicephase2.service.WorkerService;
 import ir.maktabsharif.homeservicephase2.util.ImageConverter;
 import ir.maktabsharif.homeservicephase2.util.Validation;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepository>
         implements WorkerService {
 
-    private final OfferService OFFER_SERVICE;
-    private final OrderService ORDER_SERVICE;
+    private final OfferService offerService;
+    private final OrderService orderService;
 
-    @Autowired
+    private final WorkerMapper workerMapper;
+
+    private final Validation validation;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
     public WorkerServiceImpl(WorkerRepository repository, OfferService offerService,
-                             OrderService orderService) {
+                             OrderService orderService, WorkerMapper workerMapper,
+                             Validation validation, EntityManager entityManager) {
         super(repository);
-        OFFER_SERVICE = offerService;
-        ORDER_SERVICE = orderService;
+        this.offerService = offerService;
+        this.orderService = orderService;
+        this.workerMapper = workerMapper;
+        this.validation = validation;
+        this.entityManager = entityManager;
     }
-
 
     @Override
     public Optional<Worker> findByUsername(String email) {
-        Validation.checkEmail(email);
+        validation.checkEmail(email);
         Optional<Worker> worker = (repository.findByEmail(email));
         if (worker.isEmpty())
             throw new WorkerIsNotExistException("this worker does not exist!");
@@ -48,7 +68,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
 
     @Override
     public void editPassword(Worker worker, String newPassword) {
-        Validation.checkPassword(newPassword);
+        validation.checkPassword(newPassword);
         findByUsername(worker.getEmail());
         if (worker.getPassword().equals(newPassword))
             throw new DuplicatePasswordException("this password has duplicate!");
@@ -64,11 +84,11 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
 
     @Override
     public void signUp(Worker worker, File image) {
-        Validation.checkEmail(worker.getEmail());
-        Validation.checkText(worker.getFirstname());
-        Validation.checkText(worker.getLastname());
-        Validation.checkPassword(worker.getPassword());
-        Validation.checkImage(image);
+        validation.checkEmail(worker.getEmail());
+        validation.checkText(worker.getFirstname());
+        validation.checkText(worker.getLastname());
+        validation.checkPassword(worker.getPassword());
+        validation.checkImage(image);
         if (repository.findByEmail(worker.getEmail()).isPresent())
             throw new DuplicateEmailException("this Email already exist!");
         String stringImage;
@@ -83,15 +103,15 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
 
     @Override
     public void createOfferForOrder(Long workerId, Long orderId, Offer offer) {
-        Validation.checkPositiveNumber(workerId);
-        Validation.checkPositiveNumber(orderId);
-        Validation.checkPositiveNumber(offer.getProposedPrice());
+        validation.checkPositiveNumber(workerId);
+        validation.checkPositiveNumber(orderId);
+        validation.checkPositiveNumber(offer.getProposedPrice());
         Optional<Worker> worker = repository.findById(workerId);
         if (worker.isEmpty())
             throw new WorkerIsNotExistException("this worker does not exist!");
         if (!(worker.get().getStatus().equals(WorkerStatus.CONFIRMED)))
             throw new WorkerNoAccessException("the status of expert is not CONFIRMED");
-        Optional<Order> order = ORDER_SERVICE.findById(orderId);
+        Optional<Order> order = orderService.findById(orderId);
         if (order.isEmpty())
             throw new OrderIsNotExistException("this order does not exist!");
         if (!(worker.get().getJobSet().contains(order.get().getJob())))
@@ -109,9 +129,9 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
                                            " \"WAITING FOR EXPERT SELECTION\"!");
         offer.setWorker(worker.get());
         offer.setOrder(order.get());
-        OFFER_SERVICE.save(offer);
+        offerService.save(offer);
         if (order.get().getOrderStatus().equals(OrderStatus.WAITING_FOR_WORKER_SUGGESTION))
-            ORDER_SERVICE.changeOrderStatus(orderId,
+            orderService.changeOrderStatus(orderId,
                     OrderStatus.WAITING_FOR_WORKER_SELECTION);
     }
 
@@ -127,4 +147,58 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
             throw new WorkerIsNotExistException("there are no workers!");
         return workerList;
     }
+
+    @Override
+    public List<FilterWorkerResponseDTO> workerFilter(FilterWorkerDTO workerDTO) {
+        List<Predicate> predicateList = new ArrayList<>();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Worker> workerCriteriaQuery = criteriaBuilder.createQuery(Worker.class);
+        Root<Worker> workerRoot = workerCriteriaQuery.from(Worker.class);
+
+        createFilters(workerDTO, predicateList, criteriaBuilder, workerRoot);
+
+        Predicate[] predicates = new Predicate[predicateList.size()];
+        predicateList.toArray(predicates);
+        workerCriteriaQuery.select(workerRoot).where(predicates);
+
+        List<Worker> resultList = entityManager.createQuery(workerCriteriaQuery).getResultList();
+        List<FilterWorkerResponseDTO> fwDTOS = new ArrayList<>();
+        resultList.forEach(rl -> fwDTOS.add(workerMapper.convertToFilterDTO(rl)));
+        return fwDTOS;
+    }
+
+    private void createFilters(FilterWorkerDTO workerDTO, List<Predicate> predicateList,
+                               CriteriaBuilder criteriaBuilder, Root<Worker> workerRoot) {
+        if (workerDTO.getFirstname() != null) {
+            validation.checkText(workerDTO.getFirstname());
+            String firstname = "%" + workerDTO.getFirstname() + "%";
+            predicateList.add(criteriaBuilder.like(workerRoot.get("firstname"), firstname));
+        }
+        if (workerDTO.getLastname() != null) {
+            validation.checkText(workerDTO.getLastname());
+            String lastname = "%" + workerDTO.getLastname() + "%";
+            predicateList.add(criteriaBuilder.like(workerRoot.get("lastname"), lastname));
+        }
+        if (workerDTO.getEmail() != null) {
+            validation.checkEmail(workerDTO.getEmail());
+            String email = "%" + workerDTO.getEmail() + "%";
+            predicateList.add(criteriaBuilder.like(workerRoot.get("email"), email));
+        }
+        if (workerDTO.getIsActive() != null) {
+            predicateList.add(criteriaBuilder.equal(workerRoot.get("isActive"), workerDTO.getIsActive()));
+        }
+        if (workerDTO.getWorkerStatus() != null) {
+            predicateList.add(criteriaBuilder.equal(workerRoot.get("workerStatus"), workerDTO.getWorkerStatus()));
+        }
+        if (workerDTO.getRate() != null) {
+            if (workerDTO.getRate() <= 0 || workerDTO.getRate() > 5)
+                throw new ScoreOutOfBoundsException("this rate is out of range");
+            predicateList.add(criteriaBuilder.lt(workerRoot.get("rate"), workerDTO.getRate()));
+        }
+        if (workerDTO.getCredit() != null) {
+            validation.checkPositiveNumber(workerDTO.getCredit());
+            predicateList.add(criteriaBuilder.gt(workerRoot.get("credit"), workerDTO.getCredit()));
+        }
+    }
+
 }

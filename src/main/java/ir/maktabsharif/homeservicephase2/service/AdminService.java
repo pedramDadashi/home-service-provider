@@ -1,33 +1,39 @@
 package ir.maktabsharif.homeservicephase2.service;
 
-import ir.maktabsharif.homeservicephase2.entity.job.Job;
-import ir.maktabsharif.homeservicephase2.entity.service.MainService;
-import ir.maktabsharif.homeservicephase2.entity.user.Worker;
-import ir.maktabsharif.homeservicephase2.entity.user.enums.WorkerStatus;
+import ir.maktabsharif.homeservicephase2.dto.request.*;
+import ir.maktabsharif.homeservicephase2.dto.response.*;
+
 import java.util.List;
 
 public interface AdminService {
 
-    void createMainService(String name);
+    ProjectResponse createMainService(MainServiceRequestDTO msDTO);
 
-    void deleteMainService(String name);
+    ProjectResponse deleteMainService(String name);
 
-    void addJob(String mainServiceName, String jobName, Long basePrice, String description);
+    ProjectResponse addJob(JobRequestDTO jobRequestDTO);
 
-    void deleteJob(String name);
+    ProjectResponse deleteJob(String name);
 
-    void addWorkerToJob(String jobName, String workerEmail);
+    ProjectResponse addWorkerToJob(Long jobId, Long workerId);
 
-    void deleteWorkerFromJob(String jobName, String workerEmail);
+    ProjectResponse deleteJobFromWorker(Long jobId, Long workerId);
 
-    List<MainService> findAllMainService();
+    List<MainServiceResponseDTO> findAllMainService();
 
-    List<Job> findAllJob();
+    List<JobResponseDTO> findAllJob();
 
-    void editJob(String jobName, Long basePrice, String description);
+    ProjectResponse editJobCustom(UpdateJobDTO updateJobDTO);
 
-    List<Worker> findAllWorkers();
+    List<WorkerResponseDTO> findAllWorkers();
 
-    void changeWorkerStatus(String workerUsername, WorkerStatus workerStatus);
+    ProjectResponse confirmWorker(Long workerId);
 
+    List<JobResponseDTO> findAllJobsByMainService(Long mainServiceId);
+
+    ProjectResponse deActiveWorker(Long workerId);
+
+    List<FilterWorkerResponseDTO> workerFilter(FilterWorkerDTO workerDTO);
+
+    List<FilterClientResponseDTO> clientFilter(FilterClientDTO clientDTO);
 }

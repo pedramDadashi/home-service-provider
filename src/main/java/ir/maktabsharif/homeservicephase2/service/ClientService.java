@@ -1,5 +1,7 @@
 package ir.maktabsharif.homeservicephase2.service;
 
+import ir.maktabsharif.homeservicephase2.dto.request.FilterClientDTO;
+import ir.maktabsharif.homeservicephase2.dto.response.FilterClientResponseDTO;
 import ir.maktabsharif.homeservicephase2.entity.job.Job;
 import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
 import ir.maktabsharif.homeservicephase2.entity.service.MainService;
@@ -49,4 +51,5 @@ public interface ClientService extends UsersService<Client> {
 
     void changeOrderStatusAfterStarted(Long orderId);
 
+    List<FilterClientResponseDTO> clientFilter(FilterClientDTO clientDTO);
 }

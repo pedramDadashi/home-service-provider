@@ -2,24 +2,34 @@ package ir.maktabsharif.homeservicephase2.repository;
 
 import ir.maktabsharif.homeservicephase2.base.repository.BaseRepository;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
+import ir.maktabsharif.homeservicephase2.entity.user.enums.WorkerStatus;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface WorkerRepository extends BaseRepository<Worker,Long> {
+public interface WorkerRepository extends BaseRepository<Worker, Long> {
 
-    @Query("select case when count(w)> 0 " +
-           "then true else false end from Worker w where lower(w.email) like lower(:email)")
-    boolean existsByEmail(String email) ;
+    boolean existsByEmail(String email);
 
     Optional<Worker> findByEmail(String email);
 
+    @Modifying
     @Query(" update Worker w set w.password = :newPassword where w.email = :email")
     void editPassword(String email, String newPassword);
 
-//    @Query("update Worker w set w.status = :workerStatus where w.email = :email")
-//    void changeWorkerStatus(String email, WorkerStatus workerStatus);
+    @Query("select w from Worker w where w.status= :workerStatus")
+    List<Worker> findAllByWorkerStatus(WorkerStatus workerStatus);
+
+    @Modifying
+    @Query("update Worker w set w.credit = :newCredit where w.id = :workerId")
+    void updateCredit(Long workerId, Long newCredit);
+
+    @Modifying
+    @Query("update Worker w set w.isActive = :isActive where w.id = :workerId")
+    void changeActivation(Long workerId, boolean isActive);
 
 }

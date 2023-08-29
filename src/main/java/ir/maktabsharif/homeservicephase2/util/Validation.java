@@ -1,35 +1,33 @@
 package ir.maktabsharif.homeservicephase2.util;
 
 import ir.maktabsharif.homeservicephase2.exception.*;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.regex.Pattern;
 
-
+@Component
 public class Validation {
 
-    private Validation() {
-    }
-
-    public static boolean checkBlank(String str) {
+    public boolean checkBlank(String str) {
         if (str.isBlank()) throw new TextBlankException("the string input is blank!");
         return true;
     }
 
-    public static boolean checkText(String text) {
+    public boolean checkText(String text) {
         String textRegex = "^[a-zA-Z]*$";
         if (!Pattern.matches(textRegex, text))
             throw new AlphabetException("the wording of the text is not incorrect!");
         return true;
     }
 
-    public static boolean checkPositiveNumber(Long longDigit) {
-        if (longDigit < 0)
+    public boolean checkPositiveNumber(Long longDigit) {
+        if (longDigit <= 0)
             throw new PositiveNumberException("the number is negative!");
         return true;
     }
 
-    public static boolean checkEmail(String email) {
+    public boolean checkEmail(String email) {
         String emailRegex = "^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
         if (!Pattern.matches(emailRegex, email))
             throw new EmailFormatException("the format of the email is incorrect!");
@@ -37,14 +35,14 @@ public class Validation {
     }
 
 
-    public static boolean checkPassword(String password) {
+    public boolean checkPassword(String password) {
         String passwordRegex = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$";
         if (!Pattern.matches(passwordRegex, password))
             throw new PasswordFormatException("the format of the password is incorrect!");
         return true;
     }
 
-    public static boolean checkImage(File image) {
+    public boolean checkImage(File image) {
         String imageName = image.getName();
         checkBlank(imageName);
         int index = imageName.lastIndexOf('.');

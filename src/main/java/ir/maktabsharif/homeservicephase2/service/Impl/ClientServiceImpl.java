@@ -1,6 +1,8 @@
 package ir.maktabsharif.homeservicephase2.service.Impl;
 
 import ir.maktabsharif.homeservicephase2.base.service.BaseServiceImpl;
+import ir.maktabsharif.homeservicephase2.dto.request.FilterClientDTO;
+import ir.maktabsharif.homeservicephase2.dto.response.FilterClientResponseDTO;
 import ir.maktabsharif.homeservicephase2.entity.job.Job;
 import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
 import ir.maktabsharif.homeservicephase2.entity.order.Order;
@@ -8,13 +10,21 @@ import ir.maktabsharif.homeservicephase2.entity.order.OrderStatus;
 import ir.maktabsharif.homeservicephase2.entity.service.MainService;
 import ir.maktabsharif.homeservicephase2.entity.user.Client;
 import ir.maktabsharif.homeservicephase2.exception.*;
+import ir.maktabsharif.homeservicephase2.mapper.ClientMapper;
 import ir.maktabsharif.homeservicephase2.repository.ClientRepository;
 import ir.maktabsharif.homeservicephase2.service.*;
 import ir.maktabsharif.homeservicephase2.util.Validation;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,20 +37,31 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
     private final OfferService OFFER_SERVICE;
     private final OrderService ORDER_SERVICE;
 
+    private final ClientMapper clientMapper;
+
+    private final Validation validation;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Autowired
     public ClientServiceImpl(ClientRepository repository, MainServiceService MAIN_SERVICE_SERVICE,
                              JobService JOB_SERVICE, OfferService OFFER_SERVICE,
-                             OrderService ORDER_SERVICE) {
+                             OrderService ORDER_SERVICE, ClientMapper clientMapper,
+                             Validation validation, EntityManager entityManager) {
         super(repository);
         this.MAIN_SERVICE_SERVICE = MAIN_SERVICE_SERVICE;
         this.JOB_SERVICE = JOB_SERVICE;
         this.OFFER_SERVICE = OFFER_SERVICE;
         this.ORDER_SERVICE = ORDER_SERVICE;
+        this.clientMapper = clientMapper;
+        this.validation = validation;
+        this.entityManager = entityManager;
     }
 
     @Override
     public Optional<Client> findByUsername(String email) {
-        Validation.checkEmail(email);
+        validation.checkEmail(email);
         Optional<Client> client = (repository.findByEmail(email));
         if (client.isEmpty())
             throw new ClientNotExistException("this client does not exist!");
@@ -49,7 +70,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
 
     @Override
     public void editPassword(Client client, String newPassword) {
-        Validation.checkPassword(newPassword);
+        validation.checkPassword(newPassword);
         Optional<Client> client1 = findByUsername(client.getEmail());
         if (client.getPassword().equals(newPassword))
             throw new DuplicatePasswordException("this password has duplicate!");
@@ -59,12 +80,12 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
 
     @Override
     public void signUp(Client client) {
-        Validation.checkEmail(client.getEmail());
-        Validation.checkText(client.getFirstname());
-        Validation.checkText(client.getLastname());
+        validation.checkEmail(client.getEmail());
+        validation.checkText(client.getFirstname());
+        validation.checkText(client.getLastname());
         if (repository.findByEmail(client.getEmail()).isPresent())
             throw new DuplicateEmailException("this Email already exist!");
-        Validation.checkPassword(client.getPassword());
+        validation.checkPassword(client.getPassword());
         repository.save(client);
     }
 
@@ -82,10 +103,10 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
     public void addOrder(Client client, String jobName, Long proposedPrice,
                          String description, LocalDateTime executionTime,
                          LocalDateTime updateTime, String address) {
-        Validation.checkPositiveNumber(proposedPrice);
-        Validation.checkText(jobName);
-        Validation.checkBlank(description);
-        Validation.checkBlank(address);
+        validation.checkPositiveNumber(proposedPrice);
+        validation.checkText(jobName);
+        validation.checkBlank(description);
+        validation.checkBlank(address);
         if (executionTime.isBefore(LocalDateTime.now()))
             throw new TimeException("passed this date!");
         if (updateTime.isBefore(executionTime))
@@ -106,19 +127,19 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
 
     @Override
     public List<Offer> findOfferListByOrderIdBasedOnProposedPrice(Long orderId) {
-        Validation.checkPositiveNumber(orderId);
+        validation.checkPositiveNumber(orderId);
         return OFFER_SERVICE.findOfferListByOrderIdBasedOnProposedPrice(orderId);
     }
 
     @Override
     public List<Offer> findOfferListByOrderIdBasedOnWorkerScore(Long orderId) {
-        Validation.checkPositiveNumber(orderId);
+        validation.checkPositiveNumber(orderId);
         return OFFER_SERVICE.findOfferListByOrderIdBasedOnWorkerScore(orderId);
     }
 
     @Override
     public void acceptOffer(Long offerId) {
-        Validation.checkPositiveNumber(offerId);
+        validation.checkPositiveNumber(offerId);
         Optional<Offer> offer = OFFER_SERVICE.findById(offerId);
         if (offer.isEmpty())
             throw new OfferNotExistException("this offer does not exist");
@@ -131,7 +152,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
 
     @Override
     public void changeOrderStatusAfterWorkerComes(Long orderId) {
-        Validation.checkPositiveNumber(orderId);
+        validation.checkPositiveNumber(orderId);
         Optional<Order> order = ORDER_SERVICE.findById(orderId);
         if (order.isEmpty())
             throw new OrderIsNotExistException("this order does not exist!");
@@ -149,7 +170,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
 
     @Override
     public void changeOrderStatusAfterStarted(Long orderId) {
-        Validation.checkPositiveNumber(orderId);
+        validation.checkPositiveNumber(orderId);
         Optional<Order> order = ORDER_SERVICE.findById(orderId);
         if (order.isEmpty())
             throw new OrderIsNotExistException("this order does not exist!");
@@ -163,5 +184,47 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
             throw new TimeException("the work of the worker in your place not finished yet!");
         ORDER_SERVICE.changeOrderStatus(orderId,
                 OrderStatus.DONE);
+    }
+
+    @Override
+    public List<FilterClientResponseDTO> clientFilter(FilterClientDTO clientDTO) {
+        List<Predicate> predicateList = new ArrayList<>();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Client> clientCriteriaQuery = criteriaBuilder.createQuery(Client.class);
+        Root<Client> clientRoot = clientCriteriaQuery.from(Client.class);
+
+        createFilters(clientDTO, predicateList, criteriaBuilder, clientRoot);
+
+        Predicate[] predicates = new Predicate[predicateList.size()];
+        predicateList.toArray(predicates);
+        clientCriteriaQuery.select(clientRoot).where(predicates);
+
+        List<Client> resultList = entityManager.createQuery(clientCriteriaQuery).getResultList();
+        List<FilterClientResponseDTO> fcDTOS = new ArrayList<>();
+        resultList.forEach(rl -> fcDTOS.add(clientMapper.convertToFilterDTO(rl)));
+        return fcDTOS;
+    }
+
+    private void createFilters(FilterClientDTO clientDTO, List<Predicate> predicateList,
+                               CriteriaBuilder criteriaBuilder, Root<Client> clientRoot) {
+        if (clientDTO.getFirstname() != null) {
+            validation.checkText(clientDTO.getFirstname());
+            String firstname = "%" + clientDTO.getFirstname() + "%";
+            predicateList.add(criteriaBuilder.like(clientRoot.get("firstname"), firstname));
+        }
+        if (clientDTO.getLastname() != null) {
+            validation.checkText(clientDTO.getLastname());
+            String lastname = "%" + clientDTO.getLastname() + "%";
+            predicateList.add(criteriaBuilder.like(clientRoot.get("lastname"), lastname));
+        }
+        if (clientDTO.getEmail() != null) {
+            validation.checkEmail(clientDTO.getEmail());
+            String email = "%" + clientDTO.getEmail() + "%";
+            predicateList.add(criteriaBuilder.like(clientRoot.get("email"), email));
+        }
+        if (clientDTO.getCredit() != null) {
+            validation.checkPositiveNumber(clientDTO.getCredit());
+            predicateList.add(criteriaBuilder.gt(clientRoot.get("credit"), clientDTO.getCredit()));
+        }
     }
 }

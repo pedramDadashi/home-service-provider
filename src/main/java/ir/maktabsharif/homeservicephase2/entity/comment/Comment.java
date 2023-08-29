@@ -9,9 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
-
-
 @Entity
 @Getter
 @Setter
@@ -19,12 +16,12 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Comment extends BaseEntity<Long> {
 
-    private Integer score;
+    private double score;
     private String textComment;
     @OneToOne
     private Order order;
 
-    public Comment(Integer score, String comment) {
+    public Comment(double score, String comment) {
         this.score = score;
         this.textComment = comment;
     }

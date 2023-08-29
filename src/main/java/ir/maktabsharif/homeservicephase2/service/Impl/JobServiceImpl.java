@@ -1,12 +1,15 @@
 package ir.maktabsharif.homeservicephase2.service.Impl;
 
 import ir.maktabsharif.homeservicephase2.base.service.BaseServiceImpl;
+import ir.maktabsharif.homeservicephase2.dto.response.JobResponseDTO;
 import ir.maktabsharif.homeservicephase2.entity.job.Job;
 import ir.maktabsharif.homeservicephase2.exception.MainServiceIsNotExistException;
+import ir.maktabsharif.homeservicephase2.mapper.JobMapper;
 import ir.maktabsharif.homeservicephase2.repository.JobRepository;
 import ir.maktabsharif.homeservicephase2.service.JobService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,8 +17,11 @@ import java.util.Optional;
 public class JobServiceImpl extends BaseServiceImpl<Job, Long, JobRepository>
         implements JobService {
 
-    public JobServiceImpl(JobRepository repository) {
+    private final JobMapper jobMapper;
+
+    public JobServiceImpl(JobRepository repository, JobMapper jobMapper) {
         super(repository);
+        this.jobMapper = jobMapper;
     }
 
     @Override
@@ -37,7 +43,13 @@ public class JobServiceImpl extends BaseServiceImpl<Job, Long, JobRepository>
     }
 
     @Override
-    public void editBasePriceAndDescription(String jobName, Long basePrice, String description) {
-        repository.editBasePriceAndDescription(jobName, basePrice, description);
+    public List<JobResponseDTO> findByMainServiceId(Long mainServiceId) {
+        List<Job> jobList = repository.findByMainServiceId(mainServiceId);
+        if (jobList.isEmpty())
+            throw new MainServiceIsNotExistException("there are no jobs!");
+        List<JobResponseDTO> jDTOS = new ArrayList<>();
+        jobList.forEach(j -> jDTOS.add(jobMapper.convertToDTO(j)));
+        return jDTOS;
     }
+
 }
