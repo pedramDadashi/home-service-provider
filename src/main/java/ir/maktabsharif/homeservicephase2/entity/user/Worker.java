@@ -24,6 +24,7 @@ public class Worker extends Users {
 
     private String image;
     private int score;
+    private int scoreCounter;
     @Enumerated(value = EnumType.STRING)
     private WorkerStatus status;
     @ManyToMany(mappedBy = "workerSet", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -35,6 +36,7 @@ public class Worker extends Users {
             , String password) {
         super(firstname, lastname, email, password, Boolean.FALSE);
         this.score = 0;
+        this.scoreCounter = 0;
         this.status = WorkerStatus.NEW;
     }
 
@@ -49,6 +51,18 @@ public class Worker extends Users {
         job.getWorkerSet().remove(this);
     }
 
+    public void rate(int score) {
+        this.score = ((this.score * this.scoreCounter) + score) / (this.scoreCounter++);
+        checkRate();
+    }
+
+    private void checkRate() {
+        if (this.score < 0) {
+            this.setIsActive(false);
+            this.score = 0;
+        }
+    }
+
     @Override
     public String toString() {
         return "Worker {" +
@@ -61,5 +75,4 @@ public class Worker extends Users {
                ", credit = " + getCredit() +
                "} ";
     }
-
 }
