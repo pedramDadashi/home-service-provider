@@ -3,7 +3,9 @@ package ir.maktabsharif.homeservicephase2.mapper;
 import ir.maktabsharif.homeservicephase2.dto.request.CommentRequestDTO;
 import ir.maktabsharif.homeservicephase2.dto.response.CommentResponseDTO;
 import ir.maktabsharif.homeservicephase2.entity.comment.Comment;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CommentMapper {
 
     public CommentResponseDTO convertToDTO(Comment comment) {

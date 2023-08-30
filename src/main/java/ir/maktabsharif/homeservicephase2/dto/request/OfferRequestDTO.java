@@ -16,6 +16,6 @@ public class OfferRequestDTO {
     private Long workerId;
     private Long offerPrice;
     private LocalDateTime proposedStartDate;
-    private int durationOfWork;
+//    private int durationOfWork;
 
 }

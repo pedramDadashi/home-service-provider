@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CommentRequestDTO {
 
-    private Long workerId;
+    private Long orderId;
     private String comment;
-    private double score;
+    private int score;
 
 }

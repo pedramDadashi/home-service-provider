@@ -1,13 +1,9 @@
 package ir.maktabsharif.homeservicephase2.service;
 
-import ir.maktabsharif.homeservicephase2.dto.request.FilterClientDTO;
-import ir.maktabsharif.homeservicephase2.dto.response.FilterClientResponseDTO;
-import ir.maktabsharif.homeservicephase2.entity.job.Job;
-import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
-import ir.maktabsharif.homeservicephase2.entity.service.MainService;
+import ir.maktabsharif.homeservicephase2.dto.request.*;
+import ir.maktabsharif.homeservicephase2.dto.response.*;
 import ir.maktabsharif.homeservicephase2.entity.user.Client;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,28 +24,33 @@ public interface ClientService extends UsersService<Client> {
     @Override
     Optional<Client> findByUsername(String email);
 
-    @Override
-    void editPassword(Client client, String newPassword);
+    List<OfferResponseDTO>  findOfferListByOrderIdBasedOnProposedPrice(Long orderId);
 
-    void signUp(Client client);
-
-    List<MainService> findAllMainService();
-
-    List<Job> findAllJob();
-
-    void addOrder(Client client, String jobName, Long proposedPrice,
-                  String description, LocalDateTime executionTime,
-                  LocalDateTime updateTime, String address);
-
-    List<Offer> findOfferListByOrderIdBasedOnProposedPrice(Long orderId);
-
-    List<Offer> findOfferListByOrderIdBasedOnWorkerScore(Long orderId);
-
-    void acceptOffer(Long offerId);
-
-    void changeOrderStatusAfterWorkerComes(Long orderId);
-
-    void changeOrderStatusAfterStarted(Long orderId);
+    List<OfferResponseDTO>  findOfferListByOrderIdBasedOnWorkerScore(Long orderId);
 
     List<FilterClientResponseDTO> clientFilter(FilterClientDTO clientDTO);
+
+    ProjectResponse addClient(UserRegistrationDTO clientRegistrationDTO);
+
+    ProjectResponse loginClient(LoginDTO clientLoginDto);
+
+    ProjectResponse editPassword(ChangePasswordDTO changePasswordDTO);
+
+    List<MainServiceResponseDTO> showAllMainServices();
+
+    List<JobResponseDTO> showJobs(Long mainServiceId);
+
+    ProjectResponse addNewOrder(SubmitOrderDTO submitOrderDTO);
+
+    ProjectResponse choseWorkerForOrder(Long offerId);
+
+    ProjectResponse changeOrderStatusToStarted(Long orderId);
+
+    ProjectResponse changeOrderStatusToDone(Long orderId);
+
+    ProjectResponse addComment(CommentRequestDTO commentRequestDTO);
+
+    List<OrderResponseDTO> showAllOrders(Long clientId);
+
+    List<OfferResponseDTO> showAllOfferForOrder(Long orderId);
 }

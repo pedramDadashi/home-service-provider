@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderRequestDTO {
 
-    private String orderNumber;
+//    private String orderNumber;
     private Client client;
     private List<OfferRequestDTO> offerRequestDTOList = new ArrayList<>();
     private OrderStatus orderStatus;

@@ -23,7 +23,6 @@ public class ClientMapper {
         client.setLastname(userRegistrationDTO.getLastname());
         client.setEmail(userRegistrationDTO.getEmail());
         client.setPassword(userRegistrationDTO.getPassword());
-        client.setCredit(userRegistrationDTO.getCredit());
         return client;
     }
 

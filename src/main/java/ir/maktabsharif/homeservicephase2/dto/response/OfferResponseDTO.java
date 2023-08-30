@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -17,7 +17,7 @@ public class OfferResponseDTO {
     private Worker worker;
     private Order order;
     private Long offerPrice;
-    private Date proposedStartDate;
-    private int durationOfWork;
+    private LocalDateTime proposedStartDate;
+//    private int durationOfWork;
 
 }

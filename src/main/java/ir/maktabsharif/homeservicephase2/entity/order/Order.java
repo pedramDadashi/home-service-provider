@@ -1,6 +1,7 @@
 package ir.maktabsharif.homeservicephase2.entity.order;
 
 import ir.maktabsharif.homeservicephase2.base.entity.BaseEntity;
+import ir.maktabsharif.homeservicephase2.entity.comment.Comment;
 import ir.maktabsharif.homeservicephase2.entity.job.Job;
 import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
 import ir.maktabsharif.homeservicephase2.entity.user.Client;
@@ -9,7 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "OrderTable")
+@Table(name = "Order_Table")
 public class Order extends BaseEntity<Long> {
 
     private Long proposedPrice;
@@ -37,6 +37,8 @@ public class Order extends BaseEntity<Long> {
     private Job job;
     @OneToMany(mappedBy = "order")
     private List<Offer> offerList=new ArrayList<>();
+    @OneToOne
+    private Comment comment;
 
     public Order(Long proposedPrice, String description, LocalDateTime executionTime
             , String address, LocalDateTime updateTime, Client client, Job job) {

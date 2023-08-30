@@ -1,27 +1,22 @@
 package ir.maktabsharif.homeservicephase2.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class SubmitOrderDTO {
-    Long customerId;
-    Long subServiceId;
-    String description;
-    Double CustomerProposedPrice;
 
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSS][.SS][.S]")
-    LocalDateTime workStartDate;
-    int durationOfWork;
-    String address;
+    private Long clientId;
+    private Long jobId;
+    private Long ClientProposedPrice;
+    private String description;
+    private LocalDateTime workStartDate;
+    private String address;
+    private LocalDateTime workEndDate;
+
 }

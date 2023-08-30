@@ -29,34 +29,24 @@ public class Offer extends BaseEntity<Long> {
     @Enumerated(value = EnumType.STRING)
     private TimeType timeType;
     private Integer durationTime;
-    private Boolean isAccept;
+    private OfferStatus offerStatus;
     private LocalDateTime endTime;
     @ManyToOne
     private Order order;
     @ManyToOne
     private Worker worker;
 
-    public Offer(String offer, Long proposedPrice, LocalDateTime executionTime
+    public Offer(String offerName, Long proposedPrice, LocalDateTime executionTime
             , TimeType timeType, Integer durationTime
             , LocalDateTime endTime) {
-        this.offerName = offer;
+        this.offerName = offerName;
         this.proposedPrice = proposedPrice;
         this.executionTime = executionTime;
         this.timeType = timeType;
         this.durationTime = durationTime;
         this.endTime = endTime;
-        this.isAccept = false;
+        this.offerStatus = OfferStatus.WAITING;
     }
 
-    @Override
-    public String toString() {
-        return "Offer {" +
-               "offer='" + offerName + '\'' +
-               ", proposedPrice=" + proposedPrice +
-               ", executionTime=" + executionTime +
-               ", timeType=" + timeType +
-               ", durationTime=" + durationTime +
-               ", isAccept=" + isAccept +
-               "} ";
-    }
+
 }

@@ -16,12 +16,12 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Comment extends BaseEntity<Long> {
 
-    private double score;
+    private int score;
     private String textComment;
     @OneToOne
     private Order order;
 
-    public Comment(double score, String comment) {
+    public Comment(int score, String comment) {
         this.score = score;
         this.textComment = comment;
     }
