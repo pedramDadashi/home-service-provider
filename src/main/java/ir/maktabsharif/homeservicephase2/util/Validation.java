@@ -52,4 +52,10 @@ public class Validation {
             throw new ImageSizeException("the size of the image is bigger than 300kb!");
         return true;
     }
+
+    public boolean checkScore(int score) {
+        if (score < 0 || score > 5)
+            throw new PositiveNumberException("the score must be between 0 to 5!");
+        return true;
+    }
 }
