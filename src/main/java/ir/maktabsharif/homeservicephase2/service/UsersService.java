@@ -9,6 +9,4 @@ public interface UsersService<E extends Users> extends BaseService<E,Long> {
 
     Optional<E> findByUsername(String email);
 
-    void editPassword(E e, String newPassword);
-
 }

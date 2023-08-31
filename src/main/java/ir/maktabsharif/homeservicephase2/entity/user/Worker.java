@@ -23,7 +23,7 @@ import java.util.Set;
 public class Worker extends Users {
 
     private String image;
-    private int score;
+    private double score;
     private int scoreCounter;
     @Enumerated(value = EnumType.STRING)
     private WorkerStatus status;

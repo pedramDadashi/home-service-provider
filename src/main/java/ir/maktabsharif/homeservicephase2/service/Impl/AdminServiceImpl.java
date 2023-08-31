@@ -178,9 +178,13 @@ public class AdminServiceImpl implements AdminService {
         Optional<Worker> worker = workerService.findById(workerId);
         if (worker.isEmpty())
             throw new WorkerIsNotExistException("this worker does not exist!");
-        if (worker.get().getStatus().equals(WorkerStatus.CONFIRMED))
-            throw new WorkerIsHoldsExistException("this worker is currently certified!");
-        worker.get().setStatus(WorkerStatus.CONFIRMED);
+        if (worker.get().getIsActive()) {
+            if (worker.get().getStatus().equals(WorkerStatus.CONFIRMED))
+                throw new WorkerIsHoldsExistException("this worker is currently certified!");
+            worker.get().setStatus(WorkerStatus.CONFIRMED);
+        } else {
+            worker.get().setIsActive(true);
+        }
         workerService.save(worker.get());
         return new ProjectResponse("200", "UPDATED SUCCESSFUL");
     }

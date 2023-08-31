@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 
 public class Offer extends BaseEntity<Long> {
 
-    private String offerName;
+//    private String offerName;
     private Long proposedPrice;
     private LocalDateTime executionTime;
     @Enumerated(value = EnumType.STRING)
@@ -36,10 +36,10 @@ public class Offer extends BaseEntity<Long> {
     @ManyToOne
     private Worker worker;
 
-    public Offer(String offerName, Long proposedPrice, LocalDateTime executionTime
+    public Offer(/*String offerName,*/ Long proposedPrice, LocalDateTime executionTime
             , TimeType timeType, Integer durationTime
             , LocalDateTime endTime) {
-        this.offerName = offerName;
+//        this.offerName = offerName;
         this.proposedPrice = proposedPrice;
         this.executionTime = executionTime;
         this.timeType = timeType;

@@ -24,9 +24,9 @@ public interface ClientService extends UsersService<Client> {
     @Override
     Optional<Client> findByUsername(String email);
 
-    List<OfferResponseDTO>  findOfferListByOrderIdBasedOnProposedPrice(Long orderId);
+    List<OfferResponseDTO> findOfferListByOrderIdBasedOnProposedPrice(Long orderId);
 
-    List<OfferResponseDTO>  findOfferListByOrderIdBasedOnWorkerScore(Long orderId);
+    List<OfferResponseDTO> findOfferListByOrderIdBasedOnWorkerScore(Long orderId);
 
     List<FilterClientResponseDTO> clientFilter(FilterClientDTO clientDTO);
 
@@ -52,5 +52,7 @@ public interface ClientService extends UsersService<Client> {
 
     List<OrderResponseDTO> showAllOrders(Long clientId);
 
-    List<OfferResponseDTO> showAllOfferForOrder(Long orderId);
+//    List<OfferResponseDTO> showAllOfferForOrder(Long orderId);
+
+    Long getWorkerCredit(Long workerId);
 }

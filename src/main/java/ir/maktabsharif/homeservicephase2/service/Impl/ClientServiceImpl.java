@@ -10,6 +10,7 @@ import ir.maktabsharif.homeservicephase2.entity.order.Order;
 import ir.maktabsharif.homeservicephase2.entity.order.OrderStatus;
 import ir.maktabsharif.homeservicephase2.entity.service.MainService;
 import ir.maktabsharif.homeservicephase2.entity.user.Client;
+import ir.maktabsharif.homeservicephase2.entity.user.Worker;
 import ir.maktabsharif.homeservicephase2.exception.*;
 import ir.maktabsharif.homeservicephase2.mapper.*;
 import ir.maktabsharif.homeservicephase2.repository.ClientRepository;
@@ -40,10 +41,11 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
     private final OrderService orderService;
     private final OfferService offerService;
     private final CommentService commentService;
+    private final WorkerService workerService;
 
     private final ClientMapper clientMapper;
     private final MainServiceMapper mainServiceMapper;
-//    private final JobMapper jobMapper;
+    //    private final JobMapper jobMapper;
     private final CommentMapper commentMapper;
     private final OrderMapper orderMapper;
     private final OfferMapper offerMapper;
@@ -57,8 +59,9 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
     public ClientServiceImpl(ClientRepository repository, MainServiceService mainServiceService,
                              JobService jobService, OfferService offerService,
                              OrderService orderService, CommentService commentService,
-                             ClientMapper clientMapper, MainServiceMapper mainServiceMapper,
-                            /* JobMapper jobMapper,*/ CommentMapper commentMapper,
+                             WorkerService workerService, ClientMapper clientMapper,
+                             MainServiceMapper mainServiceMapper,
+            /* JobMapper jobMapper,*/ CommentMapper commentMapper,
                              OrderMapper orderMapper, OfferMapper offerMapper,
                              Validation validation, EntityManager entityManager) {
         super(repository);
@@ -67,6 +70,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         this.offerService = offerService;
         this.orderService = orderService;
         this.commentService = commentService;
+        this.workerService = workerService;
         this.clientMapper = clientMapper;
         this.mainServiceMapper = mainServiceMapper;
 //        this.jobMapper = jobMapper;
@@ -85,11 +89,6 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         if (client.isEmpty())
             throw new ClientNotExistException("this client does not exist!");
         return client;
-    }
-
-    @Override
-    public void editPassword(Client client, String newPassword) {
-
     }
 
     @Override
@@ -189,8 +188,13 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
     }
 
     @Override
-    public List<OfferResponseDTO> showAllOfferForOrder(Long orderId) {
-        return null;
+    @Transactional(readOnly = true)
+    public Long getWorkerCredit(Long workerId) {
+        validation.checkPositiveNumber(workerId);
+        Optional<Client> client = repository.findById(workerId);
+        if (client.isEmpty())
+            throw new WorkerIsNotExistException("this worker does not exist!");
+        return client.get().getCredit();
     }
 
     @Override
@@ -224,7 +228,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
             throw new OfferNotExistException("this offer does not exist");
         Order order = offer.get().getOrder();
         order.getOfferList().forEach(o -> {
-            if (o.equals(offer.get())) {
+            if (o.equals(offer.get()) && o.getOfferStatus().equals(OfferStatus.WAITING)) {
                 o.setOfferStatus(OfferStatus.ACCEPTED);
                 order.setExecutionTime(o.getExecutionTime());
             } else {
@@ -265,14 +269,23 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         if (!order.get().getOrderStatus().equals(OrderStatus.STARTED))
             throw new OrderIsNotExistException
                     ("the status of this order is not yet \"STARTED\"!");
+        final Long[] offerId = new Long[1];
         order.get().getOfferList().forEach(o -> {
-            if (o.getOfferStatus().equals(OfferStatus.ACCEPTED)) {
-                if (o.getEndTime().isBefore(LocalDateTime.now()))
-                    throw new TimeException("the work of the worker in your place not finished yet!");
-            }
+            if (o.getOfferStatus().equals(OfferStatus.ACCEPTED))
+                offerId[0] = o.getId();
+//                if (o.getEndTime().isBefore(LocalDateTime.now()))
+//                    throw new TimeException("the work of the worker in your place not finished yet!");
         });
         order.get().setOrderStatus(OrderStatus.DONE);
         orderService.save(order.get());
+        Optional<Offer> offer = offerService.findById(offerId[0]);
+        int delay = (LocalDateTime.now().getHour()) - (offer.get().getEndTime().getHour());
+        if (delay > 0) {
+            Worker worker = offer.get().getWorker();
+            double workerScore = worker.getScore();
+            worker.setScore(workerScore - delay);
+            workerService.save(worker);
+        }
         return new ProjectResponse("200", "CHANGED SUCCESSFUL");
     }
 

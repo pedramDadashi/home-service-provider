@@ -1,8 +1,8 @@
 package ir.maktabsharif.homeservicephase2.service;
 
 import ir.maktabsharif.homeservicephase2.base.service.BaseService;
+import ir.maktabsharif.homeservicephase2.dto.response.OrderResponseDTO;
 import ir.maktabsharif.homeservicephase2.entity.order.Order;
-import ir.maktabsharif.homeservicephase2.entity.order.OrderStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,10 +21,11 @@ public interface OrderService extends BaseService<Order,Long> {
     @Override
     List<Order> findAll();
 
-    List<Order> findByClientEmailAndOrderStatus(String clientEmail, OrderStatus orderStatus);
+//    List<Order> findByClientEmailAndOrderStatus(String clientEmail, OrderStatus orderStatus);
 
-    void changeOrderStatus(Long orderId, OrderStatus newOrderStatus);
+//    void changeOrderStatus(Long orderId, OrderStatus newOrderStatus);
 
-    List<Order> findByJobIdAndOrderStatus(Long jobId, OrderStatus orderStatusOne, OrderStatus orderStatusTwo);
+//    List<Order> findByJobIdAndOrderStatus(Long jobId, OrderStatus orderStatusOne, OrderStatus orderStatusTwo);
 
+    List<OrderResponseDTO> findAllOrdersByJobName(String jobName);
 }

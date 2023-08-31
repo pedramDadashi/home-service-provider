@@ -14,6 +14,7 @@ import java.util.List;
 @RequestMapping("/client")
 @RequiredArgsConstructor
 public class ClientController {
+
     private final ClientService clientService;
 
 //    private CaptchaService captchaService;

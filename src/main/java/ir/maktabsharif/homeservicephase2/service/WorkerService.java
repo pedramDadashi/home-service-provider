@@ -1,12 +1,11 @@
 package ir.maktabsharif.homeservicephase2.service;
 
-import ir.maktabsharif.homeservicephase2.dto.request.FilterWorkerDTO;
-import ir.maktabsharif.homeservicephase2.dto.response.FilterWorkerResponseDTO;
-import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
+import ir.maktabsharif.homeservicephase2.dto.request.*;
+import ir.maktabsharif.homeservicephase2.dto.response.*;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
 import ir.maktabsharif.homeservicephase2.entity.user.enums.WorkerStatus;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,16 +26,31 @@ public interface WorkerService extends UsersService<Worker> {
     @Override
     Optional<Worker> findByUsername(String email);
 
-    @Override
-    void editPassword(Worker worker, String newPassword);
+    ProjectResponse editPassword(ChangePasswordDTO changePasswordDTO);
 
     void changeWorkerStatus(String workerUsername, WorkerStatus workerStatus);
 
-    void signUp(Worker worker, File image);
-
-    void createOfferForOrder(Long workerId, Long orderId, Offer offer);
-
-    boolean isExistByEmail(String email);
-
     List<FilterWorkerResponseDTO> workerFilter(FilterWorkerDTO workerDTO);
+
+    ProjectResponse addWorker(UserRegistrationDTO clientRegistrationDTO, MultipartFile file);
+
+    ProjectResponse loginWorker(LoginDTO workerLoginDto);
+
+    List<MainServiceResponseDTO> showAllMainServices();
+
+    List<JobResponseDTO> showJobs(Long mainServiceId);
+
+    List<OrderResponseDTO> showRelatedOrders(Long workerId);
+
+    ProjectResponse submitAnOffer(OfferRequestDTO offerRequestDTO);
+
+    double getWorkerRate(Long workerId);
+
+    List<OfferResponseDTO> showAllOffersWaiting(Long workerId);
+
+    List<OfferResponseDTO> showAllOffersAccepted(Long workerId);
+
+    List<OfferResponseDTO> showAllOffersRejected(Long workerId);
+
+    Long getWorkerCredit(Long workerId);
 }

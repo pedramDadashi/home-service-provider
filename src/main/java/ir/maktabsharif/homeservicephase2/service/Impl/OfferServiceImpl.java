@@ -2,12 +2,12 @@ package ir.maktabsharif.homeservicephase2.service.Impl;
 
 import ir.maktabsharif.homeservicephase2.base.service.BaseServiceImpl;
 import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
+import ir.maktabsharif.homeservicephase2.entity.offer.OfferStatus;
 import ir.maktabsharif.homeservicephase2.repository.OfferRepository;
 import ir.maktabsharif.homeservicephase2.service.OfferService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class OfferServiceImpl extends BaseServiceImpl<Offer, Long, OfferRepository>
@@ -29,15 +29,7 @@ public class OfferServiceImpl extends BaseServiceImpl<Offer, Long, OfferReposito
     }
 
     @Override
-    public void editIsAccept(Long offerId, Boolean isAccept) {
-        Offer offer = repository.findById(offerId).get();
-        offer.setIsAccept(isAccept);
-        repository.save(offer);
+    public List<Offer> findOffersByWorkerIdAndOfferStatus(Long workerId, OfferStatus offerStatus) {
+        return repository.findOffersByWorkerIdAndOfferStatus(workerId, offerStatus);
     }
-
-    @Override
-    public Optional<Offer> findOfferByOrderIdAndIsAccept(Long orderId, boolean isAccept) {
-        return repository.findOfferByOrderIdAndIsAccept(orderId, isAccept);
-    }
-
 }
