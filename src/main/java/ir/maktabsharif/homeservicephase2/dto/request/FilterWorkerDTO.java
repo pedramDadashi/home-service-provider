@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FilterWorkerDTO {
 
+    private String userType;
     private String firstname;
     private String lastname;
     private String email;

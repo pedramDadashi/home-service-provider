@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FilterWorkerResponseDTO {
+public class FilterWorkerResponseDTO{
 
     private Long id;
     private String firstname;
@@ -16,7 +16,7 @@ public class FilterWorkerResponseDTO {
     private String email;
     private Boolean isActive;
     private WorkerStatus workerStatus;
-    private int rate;
+    private double rate;
     private Long credit;
 
 }

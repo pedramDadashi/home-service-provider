@@ -1,8 +1,7 @@
 package ir.maktabsharif.homeservicephase2.dto.response;
 
 
-import ir.maktabsharif.homeservicephase2.entity.order.Order;
-import ir.maktabsharif.homeservicephase2.entity.user.Worker;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,9 +13,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class OfferResponseDTO {
 
-    private Worker worker;
-    private Order order;
+    private Long offerId;
+    private Long workerId;
+    private Long orderId;
     private Long offerPrice;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime proposedStartDate;
 //    private int durationOfWork;
 
