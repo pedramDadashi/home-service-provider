@@ -10,7 +10,6 @@ import ir.maktabsharif.homeservicephase2.service.WorkerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,10 +21,8 @@ public class WorkerController {
     private final WorkerService workerService;
 
     @PostMapping("/signup")
-    @ResponseBody
-    public ResponseEntity<ProjectResponse> singUp(@RequestBody UserRegistrationDTO workerRegistrationDTO,
-                                                  @RequestParam("imageFile") MultipartFile file) {
-        return ResponseEntity.ok().body(workerService.addWorker(workerRegistrationDTO, file));
+    public ResponseEntity<ProjectResponse> singUp(@ModelAttribute UserRegistrationDTO workerRegistrationDTO) {
+        return ResponseEntity.ok().body(workerService.addWorker(workerRegistrationDTO));
     }
 
     @PostMapping("/login")

@@ -3,6 +3,7 @@ package ir.maktabsharif.homeservicephase2.service.Impl;
 import ir.maktabsharif.homeservicephase2.base.service.BaseServiceImpl;
 import ir.maktabsharif.homeservicephase2.dto.request.*;
 import ir.maktabsharif.homeservicephase2.dto.response.*;
+import ir.maktabsharif.homeservicephase2.entity.comment.Comment;
 import ir.maktabsharif.homeservicephase2.entity.job.Job;
 import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
 import ir.maktabsharif.homeservicephase2.entity.offer.OfferStatus;
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +47,6 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
 
     private final ClientMapper clientMapper;
     private final MainServiceMapper mainServiceMapper;
-    //    private final JobMapper jobMapper;
     private final CommentMapper commentMapper;
     private final OrderMapper orderMapper;
     private final OfferMapper offerMapper;
@@ -59,8 +60,8 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
     public ClientServiceImpl(ClientRepository repository, MainServiceService mainServiceService,
                              JobService jobService, OfferService offerService,
                              OrderService orderService, CommentService commentService,
-                             WorkerService workerService, ClientMapper clientMapper,
-                             MainServiceMapper mainServiceMapper,
+                             WorkerService workerService, /*AdminService adminService,*/
+                             ClientMapper clientMapper, MainServiceMapper mainServiceMapper,
             /* JobMapper jobMapper,*/ CommentMapper commentMapper,
                              OrderMapper orderMapper, OfferMapper offerMapper,
                              Validation validation, EntityManager entityManager) {
@@ -73,7 +74,6 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         this.workerService = workerService;
         this.clientMapper = clientMapper;
         this.mainServiceMapper = mainServiceMapper;
-//        this.jobMapper = jobMapper;
         this.commentMapper = commentMapper;
         this.orderMapper = orderMapper;
         this.offerMapper = offerMapper;
@@ -100,6 +100,8 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         validation.checkText(clientRegistrationDTO.getLastname());
         validation.checkPassword(clientRegistrationDTO.getPassword());
         Client client = clientMapper.convertToClient(clientRegistrationDTO);
+        client.setCredit(0L);
+        client.setIsActive(true);
         repository.save(client);
         return new ProjectResponse("200", "ADDED SUCCESSFUL");
     }
@@ -150,6 +152,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
 
     @Override
     public ProjectResponse addNewOrder(SubmitOrderDTO submitOrderDTO) {
+        System.out.println(submitOrderDTO.getJobId()+submitOrderDTO.getClientId()+submitOrderDTO.getClientProposedPrice());
         if (submitOrderDTO.getWorkStartDate().isBefore(LocalDateTime.now()))
             throw new TimeException("passed this date!");
         if (submitOrderDTO.getWorkEndDate().isBefore(submitOrderDTO.getWorkStartDate()))
@@ -195,6 +198,100 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         if (client.isEmpty())
             throw new WorkerIsNotExistException("this worker does not exist!");
         return client.get().getCredit();
+    }
+
+    @Override
+    public void paymentRequestValidation(PaymentRequestDTO dto) {
+        if (!dto.getCaptcha().equals(dto.getHidden())) {
+            throw new CaptchaException("wrong captcha");
+        }
+        if (Integer.parseInt(dto.getYear()) < LocalDateTime.now().getYear()) {
+            throw new DateTimeException("expired card ");
+        }
+        if (Integer.parseInt(dto.getYear()) == LocalDateTime.now().getYear() &&
+            Integer.parseInt(dto.getMonth()) < LocalDateTime.now().getMonth().getValue()) {
+            throw new DateTimeException("expired card ");
+        }
+    }
+
+    @Override
+    @Transactional
+    public ProjectResponse changeOrderStatusToPaidByOnlinePayment(ClientIdOrderIdDTO dto) {
+        validation.checkPositiveNumber(dto.getClientId());
+        validation.checkPositiveNumber(dto.getOrderId());
+        Optional<Client> client = repository.findById(dto.getClientId());
+        Optional<Order> order = orderService.findById(dto.getOrderId());
+        if (client.isEmpty()) {
+            throw new ClientNotExistException("not found user");
+        }
+        if (order.isEmpty()) {
+            throw new OrderIsNotExistException("not found order");
+        }
+        Optional<Offer> offer = offerService.acceptedOffer(order.get().getId());
+        if (offer.isEmpty()) {
+            throw new OfferNotExistException("order not accepted yet");
+        }
+        order.get().setOrderStatus(OrderStatus.PAID);
+        orderService.save(order.get());
+        Worker worker = offer.get().getWorker();
+        Long offerPrice = offer.get().getProposedPrice();
+        Long credit = worker.getCredit();
+        Long newCredit = Math.round(offerPrice * 0.7 + credit);
+        worker.setCredit(newCredit);
+        workerService.save(worker);
+        return new ProjectResponse("200", "payment was successful");
+    }
+
+    @Override
+    public ProjectResponse paidByInAppCredit(ClientIdOrderIdDTO dto) {
+        validation.checkPositiveNumber(dto.getClientId());
+        validation.checkPositiveNumber(dto.getOrderId());
+        Optional<Client> client = repository.findById(dto.getClientId());
+        Optional<Order> order = orderService.findById(dto.getOrderId());
+        if (client.isEmpty())
+            throw new ClientNotExistException("not found user");
+        if (order.isEmpty())
+            throw new OrderIsNotExistException("not found order");
+        Optional<Offer> offer = offerService.acceptedOffer(order.get().getId());
+        if (offer.isEmpty())
+            throw new OfferNotExistException("order not accepted yet");
+        Long credit = client.get().getCredit();
+        Long offerPrice = offer.get().getProposedPrice();
+        if (credit < offerPrice)
+            throw new AmountLessExseption("not enough credit to pay in app");
+        Long newClientCredit = credit - offerPrice;
+        client.get().setCredit(newClientCredit);
+        repository.save(client.get());
+        order.get().setOrderStatus(OrderStatus.PAID);
+        orderService.save(order.get());
+        Worker worker = offer.get().getWorker();
+        Long pastCredit = worker.getCredit();
+        Long newWorkerCredit = Math.round((offerPrice * 0.7) + pastCredit);
+        worker.setCredit(newWorkerCredit);
+        workerService.save(worker);
+        return new ProjectResponse("200", "payment was successful");
+    }
+
+    @Override
+    public Long paymentPriceCalculator(Long orderId, Long clientId) {
+        validation.checkPositiveNumber(orderId);
+        validation.checkPositiveNumber(clientId);
+        Optional<Client> client = repository.findById(clientId);
+        Optional<Order> order = orderService.findById(orderId);
+        if (client.isEmpty()) {
+            throw new ClientNotExistException("not found user");
+        }
+        if (order.isEmpty()) {
+            throw new OrderIsNotExistException("not found order");
+        }
+        if (order.get().getOrderStatus().equals(OrderStatus.PAID)) {
+            throw new OrderIsNotExistException("this order is paid");
+        }
+        Optional<Offer> offer = offerService.acceptedOffer(order.get().getId());
+        if (offer.isEmpty()) {
+            throw new OfferNotExistException("offer not accepted yet");
+        }
+        return offer.get().getProposedPrice();
     }
 
     @Override
@@ -251,7 +348,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
                     ("the status of this order is not yet \"WAITING FOR EXPERT TO COME\"!");
         order.get().getOfferList().forEach(o -> {
             if (o.getOfferStatus().equals(OfferStatus.ACCEPTED)) {
-                if (o.getExecutionTime().isBefore(LocalDateTime.now()))
+                if (!o.getExecutionTime().isBefore(LocalDateTime.now()))
                     throw new TimeException("the worker has not arrived at your place yet!");
             }
         });
@@ -273,9 +370,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         order.get().getOfferList().forEach(o -> {
             if (o.getOfferStatus().equals(OfferStatus.ACCEPTED))
                 offerId[0] = o.getId();
-//                if (o.getEndTime().isBefore(LocalDateTime.now()))
-//                    throw new TimeException("the work of the worker in your place not finished yet!");
-        });
+                });
         order.get().setOrderStatus(OrderStatus.DONE);
         orderService.save(order.get());
         Optional<Offer> offer = offerService.findById(offerId[0]);
@@ -283,7 +378,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         if (delay > 0) {
             Worker worker = offer.get().getWorker();
             double workerScore = worker.getScore();
-            worker.setScore(workerScore - delay);
+            worker.rate(workerScore - delay);
             workerService.save(worker);
         }
         return new ProjectResponse("200", "CHANGED SUCCESSFUL");
@@ -305,7 +400,11 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
                 o.getWorker().rate(commentRequestDTO.getScore());
             }
         });
-        commentService.save(commentMapper.convertToComment(commentRequestDTO));
+        Comment comment = commentMapper.convertToComment(commentRequestDTO);
+        comment.setOrder(order.get());
+        commentService.save(comment);
+        order.get().setComment(comment);
+        orderService.save(order.get());
         return new ProjectResponse("200", "ADDED SUCCESSFUL");
     }
 

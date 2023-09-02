@@ -13,7 +13,8 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class OrderMapper {
-    private final OfferMapper offerMapper;
+
+//    private final OfferMapper offerMapper;
 
     public OrderResponseDTO convertToDTO(Order order) {
         OrderResponseDTO orderResponseDTO = new OrderResponseDTO();
@@ -35,7 +36,15 @@ public class OrderMapper {
         order.setClient(orderRequestDTO.getClient());
         order.setOrderStatus(orderRequestDTO.getOrderStatus());
         List<Offer> offerList = new ArrayList<>();
-        orderRequestDTO.getOfferRequestDTOList().forEach(orDTOs -> offerList.add(offerMapper.convertToOffer(orDTOs)));
+        orderRequestDTO.getOfferRequestDTOList().forEach(
+                orDTOs -> offerList.add(new Offer(
+                        orDTOs.getOfferPrice(),
+                        orDTOs.getProposedStartDate(),
+                        orDTOs.getType(),
+                        orDTOs.getDurationOfWork(),
+                        orDTOs.getProposedEndDate())
+                )
+        );
         order.setOfferList(offerList);
         return order;
     }

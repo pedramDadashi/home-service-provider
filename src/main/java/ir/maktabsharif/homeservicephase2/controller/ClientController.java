@@ -1,11 +1,17 @@
 package ir.maktabsharif.homeservicephase2.controller;
 
+import cn.apiclub.captcha.Captcha;
 import ir.maktabsharif.homeservicephase2.dto.request.*;
 import ir.maktabsharif.homeservicephase2.dto.response.*;
 import ir.maktabsharif.homeservicephase2.service.ClientService;
+import ir.maktabsharif.homeservicephase2.util.CaptchaUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
@@ -17,10 +23,7 @@ public class ClientController {
 
     private final ClientService clientService;
 
-//    private CaptchaService captchaService;
-
     @PostMapping("/signup")
-    @ResponseBody
     public ResponseEntity<ProjectResponse> singUp(@RequestBody UserRegistrationDTO clientRegistrationDTO) {
         return ResponseEntity.ok().body(clientService.addClient(clientRegistrationDTO));
     }
@@ -48,8 +51,7 @@ public class ClientController {
     }
 
     @PostMapping("/submit-order")
-    @ResponseBody
-    public ResponseEntity<ProjectResponse> submitOrder(@RequestBody SubmitOrderDTO submitOrderDTO) {
+    public ResponseEntity<ProjectResponse> submitOrder(@RequestBody @Validated SubmitOrderDTO submitOrderDTO) {
         return ResponseEntity.ok().body(clientService.addNewOrder(submitOrderDTO));
     }
 
@@ -68,20 +70,17 @@ public class ClientController {
         return clientService.findOfferListByOrderIdBasedOnProposedPrice(orderId);
     }
 
-    @PutMapping("/chose-worker-for-order/{offerId}")
-    @ResponseBody
+    @PutMapping("/chose-offer-for-order/{offerId}")
     public ResponseEntity<ProjectResponse> choseWorkerForOrder(@PathVariable Long offerId) {
         return ResponseEntity.ok().body(clientService.choseWorkerForOrder(offerId));
     }
 
     @PutMapping("/order-start/{orderId}")
-    @ResponseBody
     public ResponseEntity<ProjectResponse> orderStarted(@PathVariable Long orderId) {
         return ResponseEntity.ok().body(clientService.changeOrderStatusToStarted(orderId));
     }
 
     @PutMapping("/order-done/{orderId}")
-    @ResponseBody
     public ResponseEntity<ProjectResponse> orderDone(@PathVariable Long orderId) {
         return ResponseEntity.ok().body(clientService.changeOrderStatusToDone(orderId));
     }
@@ -92,27 +91,39 @@ public class ClientController {
         return ResponseEntity.ok().body(clientService.addComment(commentRequestDTO));
     }
 
-//    @PutMapping("/pay-by-credit/{orderId}/{customerId}/{expertId}/{amount}")
-//    @ResponseBody
-//    public void payFromCredit(@PathVariable Long orderId, @PathVariable Long customerId, @PathVariable Long expertId, @PathVariable Long amount) {
-//        customerService.payByCredit(orderId, customerId, expertId, amount);
-//    }
-//
-//    @GetMapping("/payment")
-//    public String showPaymentPage(Model model) {
-//        // create model object to store form data
-//        CardDTO card = new CardDTO();
-//        model.addAttribute("card", card);
-//        return "payment";
-//    }
-//
-//    @PostMapping("/payment/pay")
-//    @ResponseBody
-//    private String pay(@Valid final CardDTO cardDto, final HttpServletRequest request) {
-//        final String response = request.getParameter("g-recaptcha-response");
-//        captchaService.processResponse(response);
-//
-//        return "successful payment";
-//    }
+    @PutMapping("/paid-in-app-credit")
+    public ResponseEntity<ProjectResponse> payByInApp(@RequestBody @Validated ClientIdOrderIdDTO dto) {
+        ProjectResponse projectResponse = clientService.paidByInAppCredit(dto);
+        return ResponseEntity.ok().body(projectResponse);
+    }
+
+    private void setupCaptchaAndPrice(PaymentPageDTO dto) {
+        Captcha captcha = CaptchaUtil.createCaptcha(200, 50);
+        dto.setHidden(captcha.getAnswer());
+        dto.setCaptcha("");
+        dto.setImage(CaptchaUtil.encodeBase64(captcha));
+    }
+
+    @Transactional
+    @GetMapping("/pay-with-order-id/{clientId}/{orderId}")
+    public ModelAndView pay(@PathVariable Long clientId, @PathVariable Long orderId, Model model) {
+        PaymentPageDTO paymentPageDTO = new PaymentPageDTO();
+        ClientIdOrderIdDTO clientIdOrderIdDTO =new ClientIdOrderIdDTO(clientId,orderId);
+        paymentPageDTO.setClientIdOrderIdDTO(clientIdOrderIdDTO);
+        paymentPageDTO.setPrice(clientService.paymentPriceCalculator(orderId, clientId));
+        setupCaptchaAndPrice(paymentPageDTO);
+        model.addAttribute("dto", paymentPageDTO);
+        return new ModelAndView("payment");
+    }
+
+
+    @PostMapping("/send-payment-info")
+    public ResponseEntity<ProjectResponse> paymentInfo(@ModelAttribute @Validated PaymentRequestDTO dto) {
+        clientService.paymentRequestValidation(dto);
+        ProjectResponse projectResponse = clientService.changeOrderStatusToPaidByOnlinePayment(
+                dto.getClientIdOrderIdDTO()
+        );
+        return ResponseEntity.ok().body(projectResponse);
+    }
 
 }

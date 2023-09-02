@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OfferRepository extends BaseRepository<Offer, Long> {
@@ -19,7 +20,7 @@ public interface OfferRepository extends BaseRepository<Offer, Long> {
     @Query(" select o from Offer o where o.order.id = :orderId order by o.worker.score desc")
     List<Offer> findOfferListByOrderIdBasedOnWorkerScore(Long orderId);
 
-    @Query("select o from Offer o where o.worker.id = :workerId and o.offerStatus = :offerSatus")
+    @Query("select o from Offer o where o.worker.id = :workerId and o.offerStatus = :offerStatus")
     List<Offer> findOffersByWorkerIdAndOfferStatus(Long workerId, OfferStatus offerStatus);
 
 //    @Query(" update Offer o set o.isAccept = :isAccept where o.id = :offerId")
@@ -34,6 +35,9 @@ public interface OfferRepository extends BaseRepository<Offer, Long> {
     List<Offer> findAllByOrder(Order order);
 
     List<Offer> findAllByWorker(Worker worker);
+
+    @Query("select o from Offer o where o.order.id = :orderId and o.offerStatus = :offerStatus")
+    Optional<Offer> findByOrderId(Long orderId, OfferStatus offerStatus);
 
 //    List<Offer> findOffersByExpertAndOfferStatus(Expert expert, OfferStatus offerStatus);
 

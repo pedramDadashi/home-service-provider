@@ -148,7 +148,8 @@ public class AdminServiceImpl implements AdminService {
             if (job.isEmpty())
                 throw new JobIsNotExistException("this job dose not exist!");
         }
-        if (updateJobDTO.getDescription().isEmpty() && updateJobDTO.getBasePrice() == 0L) {
+        if (updateJobDTO.getDescription().isEmpty() &&
+            updateJobDTO.getBasePrice() == 0L) {
             throw new JobIsNotExistException("change titles are empty!");
         } else if (!updateJobDTO.getDescription().isEmpty()) {
             validation.checkText(updateJobDTO.getDescription());
@@ -220,4 +221,18 @@ public class AdminServiceImpl implements AdminService {
     public List<FilterClientResponseDTO> clientFilter(FilterClientDTO clientDTO) {
         return clientService.clientFilter(clientDTO);
     }
+
+//    @Override
+//    public List<FilterWorkerResponseDTO> userFilter(FilterWorkerDTO workerDTO) {
+//        return null;
+//    }
+//
+//    @Override
+//    public List<FilterWorkerResponseDTO> userFilter(FilterWorkerDTO userDTO) {
+//        List<FilterWorkerResponseDTO> furd
+//        if (userDTO.getUserType().equals("worker"))
+//            return workerService.workerFilter(userDTO);
+//        if (userDTO.getUserType().equals("client"))
+//            return workerService.workerFilter(userDTO);
+//    }
 }

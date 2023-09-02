@@ -24,6 +24,8 @@ public interface ClientService extends UsersService<Client> {
     @Override
     Optional<Client> findByUsername(String email);
 
+    Long paymentPriceCalculator(Long orderId, Long clientId);
+
     List<OfferResponseDTO> findOfferListByOrderIdBasedOnProposedPrice(Long orderId);
 
     List<OfferResponseDTO> findOfferListByOrderIdBasedOnWorkerScore(Long orderId);
@@ -55,4 +57,12 @@ public interface ClientService extends UsersService<Client> {
 //    List<OfferResponseDTO> showAllOfferForOrder(Long orderId);
 
     Long getWorkerCredit(Long workerId);
+
+//    Long paymentPriceCalculator(Long orderId, Long clientId);
+
+    void paymentRequestValidation(PaymentRequestDTO dto);
+
+    ProjectResponse changeOrderStatusToPaidByOnlinePayment(ClientIdOrderIdDTO clientIdOrderIdDTO);
+
+    ProjectResponse paidByInAppCredit(ClientIdOrderIdDTO dto);
 }

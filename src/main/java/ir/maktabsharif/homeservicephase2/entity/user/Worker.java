@@ -22,7 +22,8 @@ import java.util.Set;
 
 public class Worker extends Users {
 
-    private String image;
+    @Lob
+    private byte[] image;
     private double score;
     private int scoreCounter;
     @Enumerated(value = EnumType.STRING)
@@ -51,7 +52,7 @@ public class Worker extends Users {
         job.getWorkerSet().remove(this);
     }
 
-    public void rate(int score) {
+    public void rate(double score) {
         this.score = ((this.score * this.scoreCounter) + score) / (this.scoreCounter++);
         checkRate();
     }

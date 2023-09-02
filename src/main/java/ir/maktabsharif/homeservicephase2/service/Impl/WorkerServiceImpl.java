@@ -16,7 +16,6 @@ import ir.maktabsharif.homeservicephase2.mapper.OfferMapper;
 import ir.maktabsharif.homeservicephase2.mapper.WorkerMapper;
 import ir.maktabsharif.homeservicephase2.repository.WorkerRepository;
 import ir.maktabsharif.homeservicephase2.service.*;
-import ir.maktabsharif.homeservicephase2.util.ImageConverter;
 import ir.maktabsharif.homeservicephase2.util.Validation;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -28,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,23 +78,24 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
     }
 
     @Override
-    public ProjectResponse addWorker(UserRegistrationDTO workerRegistrationDTO, MultipartFile file) {
+    public ProjectResponse addWorker(UserRegistrationDTO workerRegistrationDTO) {
         validation.checkEmail(workerRegistrationDTO.getEmail());
         if (repository.findByEmail(workerRegistrationDTO.getEmail()).isPresent())
             throw new DuplicateEmailException("this Email already exist!");
         validation.checkText(workerRegistrationDTO.getFirstname());
         validation.checkText(workerRegistrationDTO.getLastname());
         validation.checkPassword(workerRegistrationDTO.getPassword());
-        File image = (File) file;
+        MultipartFile image = workerRegistrationDTO.getFile();
         validation.checkImage(image);
         Worker worker = workerMapper.convertToWorker(workerRegistrationDTO);
-        String stringImage;
         try {
-            stringImage = ImageConverter.getStringImage(image);
+            worker.setImage(workerRegistrationDTO.getFile().getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        worker.setImage(stringImage);
+        worker.setStatus(WorkerStatus.AWAITING);
+        worker.setCredit(0L);
+        worker.setIsActive(false);
         repository.save(worker);
         return new ProjectResponse("200", "ADDED SUCCESSFUL");
     }

@@ -4,7 +4,6 @@ import ir.maktabsharif.homeservicephase2.dto.request.*;
 import ir.maktabsharif.homeservicephase2.dto.response.*;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
 import ir.maktabsharif.homeservicephase2.entity.user.enums.WorkerStatus;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +31,7 @@ public interface WorkerService extends UsersService<Worker> {
 
     List<FilterWorkerResponseDTO> workerFilter(FilterWorkerDTO workerDTO);
 
-    ProjectResponse addWorker(UserRegistrationDTO clientRegistrationDTO, MultipartFile file);
+    ProjectResponse addWorker(UserRegistrationDTO clientRegistrationDTO);
 
     ProjectResponse loginWorker(LoginDTO workerLoginDto);
 

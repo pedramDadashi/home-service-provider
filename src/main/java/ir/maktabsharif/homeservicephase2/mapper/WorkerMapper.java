@@ -24,7 +24,6 @@ public class WorkerMapper {
         worker.setLastname(userRegistrationDTO.getLastname());
         worker.setEmail(userRegistrationDTO.getEmail());
         worker.setPassword(userRegistrationDTO.getPassword());
-        worker.setCredit(userRegistrationDTO.getCredit());
         return worker;
     }
 

@@ -36,4 +36,6 @@ public interface AdminService {
     List<FilterWorkerResponseDTO> workerFilter(FilterWorkerDTO workerDTO);
 
     List<FilterClientResponseDTO> clientFilter(FilterClientDTO clientDTO);
+
+//    List<FilterWorkerResponseDTO> userFilter(FilterWorkerDTO workerDTO);
 }

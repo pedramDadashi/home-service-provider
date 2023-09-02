@@ -2,8 +2,9 @@ package ir.maktabsharif.homeservicephase2.util;
 
 import ir.maktabsharif.homeservicephase2.exception.*;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 @Component
@@ -42,13 +43,15 @@ public class Validation {
         return true;
     }
 
-    public boolean checkImage(File image) {
-        String imageName = image.getName();
+    public boolean checkImage(MultipartFile image) {
+        String imageName = image.getContentType();
+        if (Objects.equals(null, imageName))
+            throw new ImageFormatException("the image is empty!");
         checkBlank(imageName);
-        int index = imageName.lastIndexOf('.');
-        if (!(index > 0 && imageName.substring(index + 1).equalsIgnoreCase("JPG")))
+        System.out.println(imageName);
+        if (!imageName.contains("/jpeg"))
             throw new ImageFormatException("the format of the image is incorrect!");
-        if (image.length() > 300000L)
+        if (image.getSize() > 300000L)
             throw new ImageSizeException("the size of the image is bigger than 300kb!");
         return true;
     }

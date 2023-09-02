@@ -31,4 +31,5 @@ public interface OfferService extends BaseService<Offer,Long> {
 
     List<Offer> findOffersByWorkerIdAndOfferStatus(Long workerId, OfferStatus offerStatus);
 
+    Optional<Offer> acceptedOffer(Long orderId);
 }
