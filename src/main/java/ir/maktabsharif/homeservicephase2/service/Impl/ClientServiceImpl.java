@@ -15,6 +15,8 @@ import ir.maktabsharif.homeservicephase2.entity.user.Worker;
 import ir.maktabsharif.homeservicephase2.exception.*;
 import ir.maktabsharif.homeservicephase2.mapper.*;
 import ir.maktabsharif.homeservicephase2.repository.ClientRepository;
+import ir.maktabsharif.homeservicephase2.security.token.entity.Token;
+import ir.maktabsharif.homeservicephase2.security.token.service.TokenService;
 import ir.maktabsharif.homeservicephase2.service.*;
 import ir.maktabsharif.homeservicephase2.util.Validation;
 import jakarta.persistence.EntityManager;
@@ -24,6 +26,8 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +36,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -44,6 +49,8 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
     private final OfferService offerService;
     private final CommentService commentService;
     private final WorkerService workerService;
+    private final TokenService tokenService;
+    private final EmailService emailService;
 
     private final ClientMapper clientMapper;
     private final MainServiceMapper mainServiceMapper;
@@ -52,6 +59,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
     private final OfferMapper offerMapper;
 
     private final Validation validation;
+    private final PasswordEncoder passwordEncoder;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -61,10 +69,11 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
                              JobService jobService, OfferService offerService,
                              OrderService orderService, CommentService commentService,
                              WorkerService workerService, /*AdminService adminService,*/
-                             ClientMapper clientMapper, MainServiceMapper mainServiceMapper,
+                             TokenService tokenService, EmailService emailService, ClientMapper clientMapper,
+                             MainServiceMapper mainServiceMapper,
             /* JobMapper jobMapper,*/ CommentMapper commentMapper,
                              OrderMapper orderMapper, OfferMapper offerMapper,
-                             Validation validation, EntityManager entityManager) {
+                             Validation validation, PasswordEncoder passwordEncoder, EntityManager entityManager) {
         super(repository);
         this.mainServiceService = mainServiceService;
         this.jobService = jobService;
@@ -72,12 +81,15 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         this.orderService = orderService;
         this.commentService = commentService;
         this.workerService = workerService;
+        this.tokenService = tokenService;
+        this.emailService = emailService;
         this.clientMapper = clientMapper;
         this.mainServiceMapper = mainServiceMapper;
         this.commentMapper = commentMapper;
         this.orderMapper = orderMapper;
         this.offerMapper = offerMapper;
         this.validation = validation;
+        this.passwordEncoder = passwordEncoder;
         this.entityManager = entityManager;
     }
 
@@ -100,10 +112,26 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         validation.checkText(clientRegistrationDTO.getLastname());
         validation.checkPassword(clientRegistrationDTO.getPassword());
         Client client = clientMapper.convertToClient(clientRegistrationDTO);
-        client.setCredit(0L);
-        client.setIsActive(true);
+
         repository.save(client);
         return new ProjectResponse("200", "ADDED SUCCESSFUL");
+    }
+
+    @Override
+    public String addNewClient(UserRegistrationDTO clientRegistrationDTO) {
+        validation.checkEmail(clientRegistrationDTO.getEmail());
+        if (repository.findByEmail(clientRegistrationDTO.getEmail()).isPresent())
+            throw new DuplicateEmailException("this Email already exist!");
+        Client client = clientMapper.convertToNewClient(clientRegistrationDTO);
+        repository.save(client);
+        String newToken = UUID.randomUUID().toString();
+        Token token = new Token(LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), client);
+        token.setToken(newToken);
+        tokenService.saveToken(token);
+        SimpleMailMessage mailMessage =
+                emailService.createEmail(client.getEmail(), token.getToken(), "client");
+        emailService.sendEmail(mailMessage);
+        return newToken;
     }
 
     @Override
@@ -113,7 +141,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         Optional<Client> client = repository.findByEmail(clientLoginDto.getUsername());
         if (client.isEmpty())
             throw new ClientNotExistException("this client does not exist!");
-        if (!client.get().getPassword().equals(clientLoginDto.getPassword()))
+        if (!client.get().getPassword().equals(passwordEncoder.encode(clientLoginDto.getPassword())))
             throw new PasswordIncorrect("this password incorrect!");
         return new ProjectResponse("200", "LOGIN SUCCESSFUL");
     }
@@ -128,7 +156,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmNewPassword()))
             throw new DuplicatePasswordException("this confirm new password not match with new password!");
         Optional<Client> client = repository.findByEmail(changePasswordDTO.getUsername());
-        client.get().setPassword(changePasswordDTO.getConfirmNewPassword());
+        client.get().setPassword(passwordEncoder.encode(changePasswordDTO.getConfirmNewPassword()));
         return new ProjectResponse("200", "CHANGED PASSWORD SUCCESSFUL");
     }
 
@@ -152,7 +180,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
 
     @Override
     public ProjectResponse addNewOrder(SubmitOrderDTO submitOrderDTO) {
-        System.out.println(submitOrderDTO.getJobId()+submitOrderDTO.getClientId()+submitOrderDTO.getClientProposedPrice());
+        System.out.println(submitOrderDTO.getJobId() + submitOrderDTO.getClientId() + submitOrderDTO.getClientProposedPrice());
         if (submitOrderDTO.getWorkStartDate().isBefore(LocalDateTime.now()))
             throw new TimeException("passed this date!");
         if (submitOrderDTO.getWorkEndDate().isBefore(submitOrderDTO.getWorkStartDate()))
@@ -370,7 +398,7 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         order.get().getOfferList().forEach(o -> {
             if (o.getOfferStatus().equals(OfferStatus.ACCEPTED))
                 offerId[0] = o.getId();
-                });
+        });
         order.get().setOrderStatus(OrderStatus.DONE);
         orderService.save(order.get());
         Optional<Offer> offer = offerService.findById(offerId[0]);
