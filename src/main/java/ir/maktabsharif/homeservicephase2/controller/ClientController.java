@@ -23,10 +23,7 @@ public class ClientController {
 
     private final ClientService clientService;
 
-    @PostMapping("/signup")
-    public ResponseEntity<ProjectResponse> singUp(@RequestBody UserRegistrationDTO clientRegistrationDTO) {
-        return ResponseEntity.ok().body(clientService.addClient(clientRegistrationDTO));
-    }
+
 
     @PostMapping("/login")
     @ResponseBody
@@ -37,6 +34,7 @@ public class ClientController {
     @PutMapping("/change-password")
     @ResponseBody
     public ResponseEntity<ProjectResponse> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
+        System.out.println("inja");
         return ResponseEntity.ok().body(clientService.editPassword(changePasswordDTO));
     }
 

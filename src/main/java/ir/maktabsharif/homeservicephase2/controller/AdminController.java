@@ -83,24 +83,9 @@ public class AdminController {
         return adminService.workerFilter(workerDTO);
     }
 
-//    @PostMapping("/filter")
-//    public List<FilterWorkerResponseDTO> userFilter(@RequestBody FilterWorkerDTO workerDTO) {
-//        return adminService.userFilter(workerDTO);
-//    }
-
     @PostMapping("/filter-clients")
     public List<FilterClientResponseDTO> clientFilter(@RequestBody FilterClientDTO clientDTO) {
         return adminService.clientFilter(clientDTO);
     }
 
-//    @PutMapping("/check-expert-delay/{offerId}")
-//    public void checkExpertDelayForDoingWork(@PathVariable Long offerId) {
-//        adminService.checkExpertDelayForWork(offerId);
-
-//    }
-
-//    @GetMapping("/show-sub-services-expert/{subServiceId}")
-//    public List<ExpertResponseDTO> viewSubServiceExperts(@PathVariable Long subServiceId) {
-//        return adminService.showSubServicesExpert(subServiceId);
-//    }
 }

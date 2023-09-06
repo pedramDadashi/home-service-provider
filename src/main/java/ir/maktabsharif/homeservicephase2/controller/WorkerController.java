@@ -4,7 +4,6 @@ package ir.maktabsharif.homeservicephase2.controller;
 import ir.maktabsharif.homeservicephase2.dto.request.ChangePasswordDTO;
 import ir.maktabsharif.homeservicephase2.dto.request.LoginDTO;
 import ir.maktabsharif.homeservicephase2.dto.request.OfferRequestDTO;
-import ir.maktabsharif.homeservicephase2.dto.request.UserRegistrationDTO;
 import ir.maktabsharif.homeservicephase2.dto.response.*;
 import ir.maktabsharif.homeservicephase2.service.WorkerService;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +19,7 @@ public class WorkerController {
 
     private final WorkerService workerService;
 
-    @PostMapping("/signup")
-    public ResponseEntity<ProjectResponse> singUp(@ModelAttribute UserRegistrationDTO workerRegistrationDTO) {
-        return ResponseEntity.ok().body(workerService.addWorker(workerRegistrationDTO));
-    }
+
 
     @PostMapping("/login")
     @ResponseBody
