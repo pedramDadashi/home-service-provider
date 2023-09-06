@@ -4,10 +4,17 @@ import ir.maktabsharif.homeservicephase2.dto.request.UserRegistrationDTO;
 import ir.maktabsharif.homeservicephase2.dto.response.FilterWorkerResponseDTO;
 import ir.maktabsharif.homeservicephase2.dto.response.WorkerResponseDTO;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
+import ir.maktabsharif.homeservicephase2.entity.user.enums.Role;
+import ir.maktabsharif.homeservicephase2.entity.user.enums.WorkerStatus;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class WorkerMapper {
+
+    private final PasswordEncoder passwordEncoder;
 
     public WorkerResponseDTO convertToDTO(Worker worker) {
         WorkerResponseDTO workerResponseDTO = new WorkerResponseDTO();
@@ -18,12 +25,25 @@ public class WorkerMapper {
         return workerResponseDTO;
     }
 
+    public Worker convertToNewWorker(UserRegistrationDTO userRegistrationDTO) {
+        Worker worker = new Worker();
+        worker.setFirstname(userRegistrationDTO.getFirstname());
+        worker.setLastname(userRegistrationDTO.getLastname());
+        worker.setEmail(userRegistrationDTO.getEmail());
+        worker.setPassword(passwordEncoder.encode(userRegistrationDTO.getPassword()));
+        worker.setStatus(WorkerStatus.AWAITING);
+        worker.setCredit(0L);
+        worker.setIsActive(false);
+        worker.setRole(Role.WORKER);
+        return worker;
+    }
+
     public Worker convertToWorker(UserRegistrationDTO userRegistrationDTO) {
         Worker worker = new Worker();
         worker.setFirstname(userRegistrationDTO.getFirstname());
         worker.setLastname(userRegistrationDTO.getLastname());
         worker.setEmail(userRegistrationDTO.getEmail());
-        worker.setPassword(userRegistrationDTO.getPassword());
+        worker.setPassword(passwordEncoder.encode(userRegistrationDTO.getPassword()));
         return worker;
     }
 
