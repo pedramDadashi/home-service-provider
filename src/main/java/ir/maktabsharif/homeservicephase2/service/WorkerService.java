@@ -31,7 +31,9 @@ public interface WorkerService extends UsersService<Worker> {
 
     List<FilterWorkerResponseDTO> workerFilter(FilterWorkerDTO workerDTO);
 
-    ProjectResponse addWorker(UserRegistrationDTO clientRegistrationDTO);
+    ProjectResponse addWorker(UserRegistrationDTO workerRegistrationDTO);
+
+    String addNewWorker(UserRegistrationDTO workerRegistrationDTO);
 
     ProjectResponse loginWorker(LoginDTO workerLoginDto);
 

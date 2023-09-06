@@ -25,7 +25,7 @@ public class Client extends Users {
 
     public Client(String firstname, String lastname, String email
             , String password) {
-        super(firstname, lastname, email, password, Boolean.TRUE);
+        super(firstname, lastname, email, password);
     }
 
 

@@ -35,7 +35,7 @@ public class Worker extends Users {
 
     public Worker(String firstname, String lastname, String email
             , String password) {
-        super(firstname, lastname, email, password, Boolean.FALSE);
+        super(firstname, lastname, email, password);
         this.score = 0;
         this.scoreCounter = 0;
         this.status = WorkerStatus.NEW;

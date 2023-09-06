@@ -15,6 +15,8 @@ import ir.maktabsharif.homeservicephase2.mapper.MainServiceMapper;
 import ir.maktabsharif.homeservicephase2.mapper.OfferMapper;
 import ir.maktabsharif.homeservicephase2.mapper.WorkerMapper;
 import ir.maktabsharif.homeservicephase2.repository.WorkerRepository;
+import ir.maktabsharif.homeservicephase2.security.token.entity.Token;
+import ir.maktabsharif.homeservicephase2.security.token.service.TokenService;
 import ir.maktabsharif.homeservicephase2.service.*;
 import ir.maktabsharif.homeservicephase2.util.Validation;
 import jakarta.persistence.EntityManager;
@@ -23,14 +25,18 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -47,6 +53,9 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
     private final OfferMapper offerMapper;
 
     private final Validation validation;
+    private final TokenService tokenService;
+    private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -55,7 +64,9 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
                              OrderService orderService, MainServiceService mainService,
                              JobService jobService, WorkerMapper workerMapper,
                              MainServiceMapper mainServiceMapper, OfferMapper offerMapper,
-                             Validation validation, EntityManager entityManager) {
+                             Validation validation, TokenService tokenService,
+                             EmailService emailService, PasswordEncoder passwordEncoder,
+                             EntityManager entityManager) {
         super(repository);
         this.offerService = offerService;
         this.orderService = orderService;
@@ -65,6 +76,9 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
         this.mainServiceMapper = mainServiceMapper;
         this.offerMapper = offerMapper;
         this.validation = validation;
+        this.tokenService = tokenService;
+        this.emailService = emailService;
+        this.passwordEncoder = passwordEncoder;
         this.entityManager = entityManager;
     }
 
@@ -82,9 +96,9 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
         validation.checkEmail(workerRegistrationDTO.getEmail());
         if (repository.findByEmail(workerRegistrationDTO.getEmail()).isPresent())
             throw new DuplicateEmailException("this Email already exist!");
+        validation.checkPassword(workerRegistrationDTO.getPassword());
         validation.checkText(workerRegistrationDTO.getFirstname());
         validation.checkText(workerRegistrationDTO.getLastname());
-        validation.checkPassword(workerRegistrationDTO.getPassword());
         MultipartFile image = workerRegistrationDTO.getFile();
         validation.checkImage(image);
         Worker worker = workerMapper.convertToWorker(workerRegistrationDTO);
@@ -93,11 +107,34 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        worker.setStatus(WorkerStatus.AWAITING);
-        worker.setCredit(0L);
-        worker.setIsActive(false);
         repository.save(worker);
         return new ProjectResponse("200", "ADDED SUCCESSFUL");
+    }
+
+    @Override
+    public String addNewWorker(UserRegistrationDTO workerRegistrationDTO) {
+        validation.checkEmail(workerRegistrationDTO.getEmail());
+        if (repository.findByEmail(workerRegistrationDTO.getEmail()).isPresent())
+            throw new DuplicateEmailException("this Email already exist!");
+        validation.checkPassword(workerRegistrationDTO.getPassword());
+        validation.checkText(workerRegistrationDTO.getFirstname());
+        validation.checkText(workerRegistrationDTO.getLastname());
+        validation.checkImage( workerRegistrationDTO.getFile());
+        Worker worker = workerMapper.convertToNewWorker(workerRegistrationDTO);
+        try {
+            worker.setImage(workerRegistrationDTO.getFile().getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        repository.save(worker);
+        String newToken = UUID.randomUUID().toString();
+        Token token = new Token(LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), worker);
+        token.setToken(newToken);
+        tokenService.saveToken(token);
+        SimpleMailMessage mailMessage =
+                emailService.createEmail(worker.getEmail(), token.getToken(), "worker");
+        emailService.sendEmail(mailMessage);
+        return newToken;
     }
 
     @Override
@@ -107,7 +144,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
         Optional<Worker> worker = repository.findByEmail(workerLoginDto.getUsername());
         if (worker.isEmpty())
             throw new WorkerIsNotExistException("this worker does not exist!");
-        if (!worker.get().getPassword().equals(workerLoginDto.getPassword()))
+        if (!worker.get().getPassword().equals(passwordEncoder.encode(workerLoginDto.getPassword())))
             throw new PasswordIncorrect("this password incorrect!");
         return new ProjectResponse("200", "LOGIN SUCCESSFUL");
     }
@@ -122,7 +159,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
         if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmNewPassword()))
             throw new DuplicatePasswordException("this confirm new password not match with new password!");
         Optional<Worker> worker = repository.findByEmail(changePasswordDTO.getUsername());
-        worker.get().setPassword(changePasswordDTO.getConfirmNewPassword());
+        worker.get().setPassword(passwordEncoder.encode(changePasswordDTO.getConfirmNewPassword()));
         return new ProjectResponse("200", "CHANGED PASSWORD SUCCESSFUL");
     }
 

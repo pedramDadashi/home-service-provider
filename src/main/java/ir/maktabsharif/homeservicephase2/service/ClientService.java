@@ -34,6 +34,8 @@ public interface ClientService extends UsersService<Client> {
 
     ProjectResponse addClient(UserRegistrationDTO clientRegistrationDTO);
 
+    String addNewClient(UserRegistrationDTO clientRegistrationDTO);
+
     ProjectResponse loginClient(LoginDTO clientLoginDto);
 
     ProjectResponse editPassword(ChangePasswordDTO changePasswordDTO);
