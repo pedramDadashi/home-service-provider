@@ -24,8 +24,10 @@ public class AdminController {
     }
 
     @PostMapping("/add-main-service")
-    public ResponseEntity<ProjectResponse> addMainService(@RequestBody MainServiceRequestDTO mainServiceRequestDTO) {
-        return ResponseEntity.ok().body(adminService.createMainService(mainServiceRequestDTO));
+    public ResponseEntity<ProjectResponse> addMainService(
+            @RequestBody MainServiceRequestDTO mainServiceRequestDTO) {
+        return ResponseEntity.ok().body(adminService.createMainService(
+                mainServiceRequestDTO));
     }
 
     @DeleteMapping("/delete-main-service/{name}")
@@ -47,11 +49,6 @@ public class AdminController {
     public ResponseEntity<ProjectResponse> addJob(@RequestBody JobRequestDTO jobRequestDTO) {
         return ResponseEntity.ok().body(adminService.addJob(jobRequestDTO));
     }
-
-//    @DeleteMapping("/delete-job/{jobId}")
-//    public ResponseEntity<ProjectResponse> deleteJob(@PathVariable Long jobId) {
-//        return ResponseEntity.ok().body(adminService.deleteJob(jobId));
-//    }
 
     @PutMapping("/edit-job-custom")
     public ResponseEntity<ProjectResponse> editJobCustom(@RequestBody UpdateJobDTO updateJobDTO) {
@@ -78,14 +75,13 @@ public class AdminController {
         return ResponseEntity.ok().body(adminService.deActiveWorker(workerId));
     }
 
-    @PostMapping("/filter-workers")
-    public List<FilterWorkerResponseDTO> workerFilter(@RequestBody FilterWorkerDTO workerDTO) {
-        return adminService.workerFilter(workerDTO);
+    @PostMapping("/filter-users")
+    public List<FilterUserResponseDTO> userFilter(@RequestBody FilterUserDTO userDTO) {
+        return adminService.userFilter(userDTO);
     }
-
-    @PostMapping("/filter-clients")
-    public List<FilterClientResponseDTO> clientFilter(@RequestBody FilterClientDTO clientDTO) {
-        return adminService.clientFilter(clientDTO);
+    @PostMapping("/filter-order")
+    public List<FilterOrderResponseDTO> orderFilter(@RequestBody FilterOrderDTO orderDTO) {
+        return adminService.orderFilter(orderDTO);
     }
 
 }

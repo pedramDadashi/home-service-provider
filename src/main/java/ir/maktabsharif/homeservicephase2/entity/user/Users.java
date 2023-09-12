@@ -4,9 +4,9 @@ import ir.maktabsharif.homeservicephase2.base.entity.BaseEntity;
 import ir.maktabsharif.homeservicephase2.entity.user.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,33 +14,40 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
+import static lombok.AccessLevel.PRIVATE;
+
+@Data
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
-
+@FieldDefaults(level = PRIVATE)
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Users extends BaseEntity<Long> implements UserDetails {
 
-    private String firstname;
-    private String lastname;
+    String firstname;
+    String lastname;
     @Column(unique = true)
-    private String email;
-    private String password;
-    private Boolean isActive;
-    private Long credit;
+    String email;
+    String password;
+    Boolean isActive;
+    Long credit;
     @Enumerated(value = EnumType.STRING)
-    private Role role;
+    Role role;
+    int numberOfOperation;
 
-    public Users(String firstname, String lastname
-            , String email, String password
-    ) {
+    public Users(String firstname, String lastname, String email, String password, Role role) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.password = password;
+        this.role = role;
         this.credit = 0L;
+        this.numberOfOperation = 0;
+    }
+
+    public boolean increaseNumberOfOperation() {
+        this.numberOfOperation++;
+        return true;
     }
 
     @Override

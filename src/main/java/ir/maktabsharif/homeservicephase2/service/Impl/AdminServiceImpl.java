@@ -1,40 +1,93 @@
 package ir.maktabsharif.homeservicephase2.service.Impl;
 
+import ir.maktabsharif.homeservicephase2.base.service.BaseServiceImpl;
 import ir.maktabsharif.homeservicephase2.dto.request.*;
 import ir.maktabsharif.homeservicephase2.dto.response.*;
-import ir.maktabsharif.homeservicephase2.entity.job.Job;
+import ir.maktabsharif.homeservicephase2.entity.service.Job;
 import ir.maktabsharif.homeservicephase2.entity.service.MainService;
+import ir.maktabsharif.homeservicephase2.entity.user.Admin;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
 import ir.maktabsharif.homeservicephase2.entity.user.enums.WorkerStatus;
 import ir.maktabsharif.homeservicephase2.exception.*;
-import ir.maktabsharif.homeservicephase2.mapper.JobMapper;
-import ir.maktabsharif.homeservicephase2.mapper.MainServiceMapper;
-import ir.maktabsharif.homeservicephase2.mapper.WorkerMapper;
+import ir.maktabsharif.homeservicephase2.mapper.*;
+import ir.maktabsharif.homeservicephase2.repository.AdminRepository;
+import ir.maktabsharif.homeservicephase2.security.token.entity.Token;
+import ir.maktabsharif.homeservicephase2.security.token.service.TokenService;
 import ir.maktabsharif.homeservicephase2.service.*;
 import ir.maktabsharif.homeservicephase2.util.Validation;
-import lombok.RequiredArgsConstructor;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+
+import static ir.maktabsharif.homeservicephase2.entity.user.enums.Role.CLIENT;
+import static ir.maktabsharif.homeservicephase2.entity.user.enums.Role.WORKER;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
-public class AdminServiceImpl implements AdminService {
+public class AdminServiceImpl extends BaseServiceImpl<Admin, Long, AdminRepository>
+        implements AdminService {
 
     private final MainServiceService mainServiceService;
     private final JobService jobService;
+    private final OrderService orderService;
     private final WorkerService workerService;
     private final ClientService clientService;
 
     private final MainServiceMapper mainServiceMapper;
     private final JobMapper jobMapper;
     private final WorkerMapper workerMapper;
+    private final AdminMapper adminMapper;
+    private final FilterMapper filterMapper;
 
     private final Validation validation;
+    private final TokenService tokenService;
+    private final EmailService emailService;
+
+    public AdminServiceImpl(AdminRepository repository, MainServiceService mainServiceService,
+                            JobService jobService, OrderService orderService, WorkerService workerService,
+                            ClientService clientService, MainServiceMapper mainServiceMapper,
+                            JobMapper jobMapper, WorkerMapper workerMapper,
+                            AdminMapper adminMapper, FilterMapper filterMapper, Validation validation,
+                            TokenService tokenService, EmailService emailService) {
+        super(repository);
+        this.mainServiceService = mainServiceService;
+        this.jobService = jobService;
+        this.orderService = orderService;
+        this.workerService = workerService;
+        this.clientService = clientService;
+        this.mainServiceMapper = mainServiceMapper;
+        this.jobMapper = jobMapper;
+        this.workerMapper = workerMapper;
+        this.adminMapper = adminMapper;
+        this.filterMapper = filterMapper;
+        this.validation = validation;
+        this.tokenService = tokenService;
+        this.emailService = emailService;
+    }
+
+    @Override
+    public String addNewAdmin(AdminRegistrationDTO dto) {
+        validation.checkEmail(dto.getEmail());
+        if (repository.findByEmail(dto.getEmail()).isPresent())
+            throw new DuplicateEmailException("this Email already exist!");
+        Admin admin = adminMapper.convertToNewAdmin(dto);
+        repository.save(admin);
+        String newToken = UUID.randomUUID().toString();
+        Token token = new Token(LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), admin);
+        token.setToken(newToken);
+        tokenService.saveToken(token);
+        SimpleMailMessage mailMessage =
+                emailService.createEmail(admin.getEmail(), admin.getFirstname(),
+                        token.getToken(), admin.getRole());
+        emailService.sendEmail(mailMessage);
+        return newToken;
+    }
 
     @Override
     public ProjectResponse createMainService(MainServiceRequestDTO msDTO) {
@@ -169,7 +222,8 @@ public class AdminServiceImpl implements AdminService {
     public List<WorkerResponseDTO> findAllWorkers() {
         List<Worker> workers = workerService.findAll();
         List<WorkerResponseDTO> wDTOS = new ArrayList<>();
-        workers.forEach(w -> wDTOS.add(workerMapper.convertToDTO(w)));
+        if (!workers.isEmpty())
+            workers.forEach(w -> wDTOS.add(workerMapper.convertToDTO(w)));
         return wDTOS;
     }
 
@@ -213,13 +267,29 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<FilterWorkerResponseDTO> workerFilter(FilterWorkerDTO workerDTO) {
-        return workerService.workerFilter(workerDTO);
+    public List<FilterUserResponseDTO> userFilter(FilterUserDTO userDTO) {
+        List<FilterUserResponseDTO> filterUserResponseDTOList = new ArrayList<>();
+        if (userDTO.getUserType().isEmpty() ||
+            userDTO.getUserType().equals(CLIENT.name()))
+            filterUserResponseDTOList.addAll(clientService.clientFilter(userDTO));
+        if (userDTO.getUserType().isEmpty() ||
+            userDTO.getUserType().equals(WORKER.name()))
+            filterUserResponseDTOList.addAll(workerService.workerFilter(userDTO));
+        if (userDTO.getUserType().equals("ALL")) {
+            filterUserResponseDTOList.addAll(clientService.allClient(userDTO));
+            filterUserResponseDTOList.addAll(workerService.allWorker(userDTO));
+        }
+        return filterUserResponseDTOList;
     }
 
     @Override
-    public List<FilterClientResponseDTO> clientFilter(FilterClientDTO clientDTO) {
-        return clientService.clientFilter(clientDTO);
+    public List<FilterOrderResponseDTO> orderFilter(FilterOrderDTO orderDTO) {
+        return orderService.ordersFilter(orderDTO);
+    }
+
+    @Override
+    public Optional<Admin> findByUsername(String email) {
+        return repository.findByEmail(email);
     }
 
 //    @Override

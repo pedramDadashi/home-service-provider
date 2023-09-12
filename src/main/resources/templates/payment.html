@@ -11,25 +11,22 @@
 <div class="text-center d-flex">
     <span class="text- mx-auto" style="flex: auto;">time left: <span id="demo"></span></span>
 </div>
-<div class="d-flex justify-content-center align-items-center " >
+<div class="d-flex justify-content-center align-items-center ">
     <div class="p-3 border bg-white rounded">
         <header class="text-center d-flex">
-            <h3 >Payment Details</h3>
+            <h3>Payment Details</h3>
         </header>
 
-        <form method="post" id="myForm"  th:action="@{/client/send-payment-info}" th:object="${dto}">
-            <div >
+        <form method="post" id="myForm" th:action="@{/client/send-payment-info}" th:object="${dto}">
+            <div>
                 must be paid : <span th:text="${dto.price}">$ </span>
             </div>
 
-            <div >
+            <div>
                 <label for="number">Card Number</label>
-                <input class="form-control no-border" id="number" type="text" placeholder="1234 1234 1234 1234" required/>
+                <input class="form-control no-border" id="number" type="text" placeholder="1234 1234 1234 1234"
+                       required/>
             </div>
-<!--            <div class="card-name">-->
-<!--                <label for="name">Lastname</label>-->
-<!--                <input class="form-control no-border" id="name" autocomplete="off" type="text" size="40" required placeholder="Your Name"/>-->
-<!--            </div>-->
             <div class="input-row">
                 <div class="select-date">
                     <label for="date">Expiration</label>
@@ -64,48 +61,49 @@
                 </div>
                 <div class="row">
                     <div class="p-3">
-                        <img  th:src="*{'data:image/png;base64,'+ image}"/>
+                        <img th:src="*{'data:image/png;base64,'+ dto.image}"/>
                     </div>
                 </div>
                 <div class="row">
                     <div class="card-number">
                         <label for="captcha">CAPTCHA</label>
-                        <input class="form-control no-border" id="captcha" placeholder="captcha" type="text" th:field="*{captcha}"/>
-                        <input type="hidden" th:field="*{hidden}"/>
+                        <input class="form-control no-border" id="captcha" placeholder="captcha"
+                               type="text" th:field="*{dto.captcha}"/>
+                        <input type="hidden" th:field="*{dto.hidden}"/>
                         <input type="hidden" value="orderId" th:field="*{clientIdOrderIdDTO.orderId}"/>
                         <input type="hidden" value="customerId" th:field="*{clientIdOrderIdDTO.clientId}"/>
                     </div>
                 </div>
-                <button cl
-                        ass=" form-control no-border bg-secondary mt-2 " type="submit">Complete Purchase</button>
+                <button class=" form-control no-border bg-secondary mt-2 " type="submit">
+                    Complete Purchase
+                </button>
 
                 <script>
                     const form = document.getElementById('myForm');
 
                     form.addEventListener('submit', (event) => {
                         event.preventDefault();
-
                         const formData = new FormData(form);
-                        formData.append("name", form.name.value)
+                        formData.append("name", form.name)
                         formData.append("cvc", form.cvc.value)
                         formData.append("number", form.number.value)
-                        // formData.append("orderId",form.orderId.value)
-                        // formData.append("customerId",form.customerId.value)
-                        // formData.append("captcha",form.captcha.value)
-                        // formData.append("hidden",form.hidden.value)
-                        // formData.append("month",form.month.value)
-                        // formData.append("year",form.year.value)
+                        formData.append("orderId", form.orderId.value)
+                        formData.append("customerId", form.customerId.value)
+                        formData.append("captcha", form.captcha.value)
+                        formData.append("hidden", form.hidden.value)
+                        formData.append("month", form.month.value)
+                        formData.append("year", form.year.value)
 
                         fetch('/client/send-payment-info', {
                             method: 'POST',
                             body: formData
                         })
                             .then(function (response) {
-                            return response.json();
-                        })
-                            .then(function(jsonObj) {
+                                return response.json();
+                            })
+                            .then(function (jsonObj) {
                                 alert(jsonObj.message)
-                                if (jsonObj.code==="200"){
+                                if (jsonObj.code === "200") {
                                     window.location.replace("/success-payment.html")
                                 }
                             })

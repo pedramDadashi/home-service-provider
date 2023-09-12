@@ -9,5 +9,8 @@ import java.io.Serializable;
 public interface BaseRepository<E extends BaseEntity<ID>, ID extends Serializable>
         extends JpaRepository<E,ID> {
 
+    @Override
+     boolean existsById(ID id);
+
 
 }

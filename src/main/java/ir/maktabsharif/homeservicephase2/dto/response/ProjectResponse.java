@@ -2,12 +2,17 @@ package ir.maktabsharif.homeservicephase2.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
+
+import static lombok.AccessLevel.PRIVATE;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = PRIVATE)
 public class ProjectResponse {
 
-    private String code;
-    private String message;
-
+    String code;
+    String message;
 }

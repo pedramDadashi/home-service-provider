@@ -2,7 +2,7 @@ package ir.maktabsharif.homeservicephase2.repository;
 
 import ir.maktabsharif.homeservicephase2.base.repository.BaseRepository;
 import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
-import ir.maktabsharif.homeservicephase2.entity.offer.OfferStatus;
+import ir.maktabsharif.homeservicephase2.entity.offer.enums.OfferStatus;
 import ir.maktabsharif.homeservicephase2.entity.order.Order;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface OfferRepository extends BaseRepository<Offer, Long> {
 
-    @Query(" select o from Offer o where o.order.id = :orderId order by o.proposedPrice")
+    @Query(" select o from Offer o where o.order.id = :orderId order by o.proposedPrice asc")
     List<Offer> findOfferListByOrderIdBasedOnProposedPrice(Long orderId);
 
     @Query(" select o from Offer o where o.order.id = :orderId order by o.worker.score desc")

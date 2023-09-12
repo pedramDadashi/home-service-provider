@@ -1,35 +1,37 @@
 package ir.maktabsharif.homeservicephase2.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import ir.maktabsharif.homeservicephase2.entity.comment.Comment;
+import ir.maktabsharif.homeservicephase2.entity.Address.Address;
 import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
-import ir.maktabsharif.homeservicephase2.entity.order.OrderStatus;
+import ir.maktabsharif.homeservicephase2.entity.order.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static lombok.AccessLevel.PRIVATE;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = PRIVATE)
 public class OrderResponseDTO {
 
-//    private String orderNumber;
-    private Long clientId;
-    private Long jobId;
-    private List<Offer> offers = new ArrayList<>();
-    private String description;
-    private Long clientProposedPrice;
-    private OrderStatus orderStatus;
-    private Comment comment;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime orderRegistrationDate;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime workStartDate;
-//    private int durationOfWork;
-    private String address;
+    Address address;
+    String description;
+    Long orderProposedPrice;
+    OrderStatus orderStatus;
+    List<Offer> offerList = new ArrayList<>();
+    String jobName;
+    String mainServiceName;
+    @JsonFormat(pattern = "yyyy-MM-dd' 'HH:mm:ss")
+    LocalDateTime orderCreationDate;
+    @JsonFormat(pattern = "yyyy-MM-dd' 'HH:mm:ss")
+    LocalDateTime orderEndDate;
+    String durationOfWork;
 
 }

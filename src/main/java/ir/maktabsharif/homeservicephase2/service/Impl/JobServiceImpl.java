@@ -2,7 +2,7 @@ package ir.maktabsharif.homeservicephase2.service.Impl;
 
 import ir.maktabsharif.homeservicephase2.base.service.BaseServiceImpl;
 import ir.maktabsharif.homeservicephase2.dto.response.JobResponseDTO;
-import ir.maktabsharif.homeservicephase2.entity.job.Job;
+import ir.maktabsharif.homeservicephase2.entity.service.Job;
 import ir.maktabsharif.homeservicephase2.exception.MainServiceIsNotExistException;
 import ir.maktabsharif.homeservicephase2.mapper.JobMapper;
 import ir.maktabsharif.homeservicephase2.repository.JobRepository;
@@ -43,13 +43,22 @@ public class JobServiceImpl extends BaseServiceImpl<Job, Long, JobRepository>
     }
 
     @Override
+    public List<JobResponseDTO> findByMainServiceName(String mainServiceName) {
+        List<Job> jobList = repository.findByMainServiceName(mainServiceName);
+        List<JobResponseDTO> jrDTOS = new ArrayList<>();
+        if (jobList.isEmpty())
+            return jrDTOS;
+        jobList.forEach(j -> jrDTOS.add(jobMapper.convertToDTO(j)));
+        return jrDTOS;
+    }
+    @Override
     public List<JobResponseDTO> findByMainServiceId(Long mainServiceId) {
         List<Job> jobList = repository.findByMainServiceId(mainServiceId);
+        List<JobResponseDTO> jrDTOS = new ArrayList<>();
         if (jobList.isEmpty())
-            throw new MainServiceIsNotExistException("there are no jobs!");
-        List<JobResponseDTO> jDTOS = new ArrayList<>();
-        jobList.forEach(j -> jDTOS.add(jobMapper.convertToDTO(j)));
-        return jDTOS;
+            return jrDTOS;
+        jobList.forEach(j -> jrDTOS.add(jobMapper.convertToDTO(j)));
+        return jrDTOS;
     }
 
 }

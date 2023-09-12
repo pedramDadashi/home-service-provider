@@ -5,33 +5,27 @@ import ir.maktabsharif.homeservicephase2.entity.order.Order;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
+import static lombok.AccessLevel.PRIVATE;
+
+@Data
 @Entity
-@Getter
-@Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = PRIVATE)
 public class Comment extends BaseEntity<Long> {
 
-    private int score;
-    private String textComment;
+    int score;
+    String textComment;
     @OneToOne
-    private Order order;
+    Order order;
 
     public Comment(int score, String comment) {
         this.score = score;
         this.textComment = comment;
     }
 
-    @Override
-    public String toString() {
-        return "Comment{" +
-               "score=" + score +
-               ", comment='" + textComment + '\'' +
-               ", order=" + order +
-               '}';
-    }
 }

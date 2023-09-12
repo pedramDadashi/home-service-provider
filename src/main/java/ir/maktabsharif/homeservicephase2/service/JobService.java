@@ -2,7 +2,7 @@ package ir.maktabsharif.homeservicephase2.service;
 
 import ir.maktabsharif.homeservicephase2.base.service.BaseService;
 import ir.maktabsharif.homeservicephase2.dto.response.JobResponseDTO;
-import ir.maktabsharif.homeservicephase2.entity.job.Job;
+import ir.maktabsharif.homeservicephase2.entity.service.Job;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +24,8 @@ public interface JobService extends BaseService<Job,Long> {
     Optional<Job> findByName(String jobName);
 
     void deleteJobByName(String jobName);
+
+    List<JobResponseDTO> findByMainServiceName(String mainServiceName);
 
     List<JobResponseDTO> findByMainServiceId(Long mainServiceId);
 }

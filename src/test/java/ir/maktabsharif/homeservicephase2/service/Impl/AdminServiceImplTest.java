@@ -1,6 +1,6 @@
 //package ir.maktabsharif.homeservicephase2.service.Impl;
 //
-//import ir.maktabsharif.homeservicephase2.entity.job.Job;
+//import ir.maktabsharif.homeservicephase2.entity.service.Job;
 //import ir.maktabsharif.homeservicephase2.entity.service.MainService;
 //import ir.maktabsharif.homeservicephase2.entity.user.Worker;
 //import ir.maktabsharif.homeservicephase2.entity.user.enums.WorkerStatus;

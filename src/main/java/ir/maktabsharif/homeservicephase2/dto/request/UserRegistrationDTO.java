@@ -1,19 +1,24 @@
 package ir.maktabsharif.homeservicephase2.dto.request;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+
 public class UserRegistrationDTO {
 
-    private String firstname;
-    private String lastname;
-    private String email;
-    private String password;
-    private MultipartFile file;
+    String firstname;
+    String lastname;
+    String email;
+    String password;
+    String province;
+    MultipartFile file;
 
 }

@@ -2,7 +2,7 @@ package ir.maktabsharif.homeservicephase2.repository;
 
 import ir.maktabsharif.homeservicephase2.base.repository.BaseRepository;
 import ir.maktabsharif.homeservicephase2.entity.order.Order;
-import ir.maktabsharif.homeservicephase2.entity.order.OrderStatus;
+import ir.maktabsharif.homeservicephase2.entity.order.enums.OrderStatus;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -10,6 +10,9 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends BaseRepository<Order, Long> {
+
+    @Override
+    boolean existsById(Long aLong);
 
     @Query("select o from Order o where o.client.email = :clientEmail and o.orderStatus = :orderStatus")
     List<Order> findOrderListByClientEmailAndOrderStatus(String clientEmail, OrderStatus orderStatus);

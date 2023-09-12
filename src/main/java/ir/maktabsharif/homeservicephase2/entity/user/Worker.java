@@ -1,46 +1,51 @@
 package ir.maktabsharif.homeservicephase2.entity.user;
 
 
-import ir.maktabsharif.homeservicephase2.entity.job.Job;
 import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
+import ir.maktabsharif.homeservicephase2.entity.service.Job;
+import ir.maktabsharif.homeservicephase2.entity.user.enums.Role;
 import ir.maktabsharif.homeservicephase2.entity.user.enums.WorkerStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static lombok.AccessLevel.PRIVATE;
 
+
+@Data
 @Entity
 @NoArgsConstructor
-@Getter
-@Setter
-
+@AllArgsConstructor
+@FieldDefaults(level = PRIVATE)
 public class Worker extends Users {
-
     @Lob
-    private byte[] image;
-    private double score;
-    private int scoreCounter;
+    byte[] image;
+    double score;
+    int rateCounter;
+    String province;
     @Enumerated(value = EnumType.STRING)
-    private WorkerStatus status;
+    WorkerStatus status;
     @ManyToMany(mappedBy = "workerSet", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Set<Job> jobSet = new HashSet<>();
+    Set<Job> jobSet = new HashSet<>();
     @OneToMany(mappedBy = "worker")
-    private List<Offer> offerList = new ArrayList<>();
+    List<Offer> offerList = new ArrayList<>();
 
-    public Worker(String firstname, String lastname, String email
-            , String password) {
-        super(firstname, lastname, email, password);
+    public Worker(String firstname, String lastname, String email, String password,
+                  String province,byte[] image) {
+        super(firstname, lastname, email, password, Role.WORKER);
         this.score = 0;
-        this.scoreCounter = 0;
+        this.rateCounter = 0;
         this.status = WorkerStatus.NEW;
+        this.province = province;
+        this.image = image;
     }
-
 
     public void addJob(Job job) {
         this.jobSet.add(job);
@@ -52,28 +57,20 @@ public class Worker extends Users {
         job.getWorkerSet().remove(this);
     }
 
-    public void rate(double score) {
-        this.score = ((this.score * this.scoreCounter) + score) / (this.scoreCounter++);
+    public void rate(int score) {
+        this.score = ((this.score * this.rateCounter) + score) / (this.rateCounter++);
+    }
+
+    public void delay(int hours) {
+        this.score = this.score - hours;
         checkRate();
     }
 
     private void checkRate() {
         if (this.score < 0) {
             this.setIsActive(false);
+            this.status = WorkerStatus.AWAITING;
             this.score = 0;
         }
-    }
-
-    @Override
-    public String toString() {
-        return "Worker {" +
-               "firstname = '" + getFirstname() + '\'' +
-               ", lastname = '" + getLastname() + '\'' +
-               ", email = '" + getEmail() + '\'' +
-               ", username = '" + getEmail() + '\'' +
-               ", score = " + score +
-               ", workerStatus = '" + status + '\'' +
-               ", credit = " + getCredit() +
-               "} ";
     }
 }

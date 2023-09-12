@@ -1,54 +1,65 @@
 package ir.maktabsharif.homeservicephase2.entity.order;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import ir.maktabsharif.homeservicephase2.base.entity.BaseEntity;
+import ir.maktabsharif.homeservicephase2.entity.Address.Address;
 import ir.maktabsharif.homeservicephase2.entity.comment.Comment;
-import ir.maktabsharif.homeservicephase2.entity.job.Job;
 import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
+import ir.maktabsharif.homeservicephase2.entity.order.enums.OrderStatus;
+import ir.maktabsharif.homeservicephase2.entity.service.Job;
 import ir.maktabsharif.homeservicephase2.entity.user.Client;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ir.maktabsharif.homeservicephase2.entity.order.enums.OrderStatus.WAITING_FOR_WORKER_SUGGESTION;
+import static jakarta.persistence.CascadeType.MERGE;
+import static jakarta.persistence.EnumType.STRING;
+import static lombok.AccessLevel.PRIVATE;
 
+
+@Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 @Table(name = "Order_Table")
+@FieldDefaults(level = PRIVATE)
 public class Order extends BaseEntity<Long> {
 
-    private Long proposedPrice;
-    private String description;
-    private LocalDateTime executionTime;
-    private String address;
-    @Enumerated(value = EnumType.STRING)
-    private OrderStatus orderStatus;
-    private LocalDateTime updateTime;
-    @ManyToOne(cascade = CascadeType.MERGE)
-    private Client client;
-    @ManyToOne(cascade = CascadeType.MERGE)
-    private Job job;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime executionTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime endTime;
+    Long proposedPrice;
+    String description;
+    @Enumerated(value = STRING)
+    OrderStatus orderStatus;
+    @ManyToOne(cascade = MERGE)
+    Client client;
+    @ManyToOne(cascade = MERGE)
+    Job job;
     @OneToMany(mappedBy = "order")
-    private List<Offer> offerList=new ArrayList<>();
+    List<Offer> offerList = new ArrayList<>();
     @OneToOne
-    private Comment comment;
+    Comment comment;
+    @OneToOne
+    Address address;
 
-    public Order(Long proposedPrice, String description, LocalDateTime executionTime
-            , String address, LocalDateTime updateTime, Client client, Job job) {
+    public Order(LocalDateTime executionTime, LocalDateTime endTime, Long proposedPrice,
+                 String description, Address address, Client client, Job job) {
+        this.executionTime = executionTime;
+        this.endTime = endTime;
         this.proposedPrice = proposedPrice;
         this.description = description;
-        this.executionTime = executionTime;
         this.address = address;
-        this.updateTime = updateTime;
+        this.orderStatus = WAITING_FOR_WORKER_SUGGESTION;
         this.client = client;
         this.job = job;
-        this.orderStatus=OrderStatus.WAITING_FOR_WORKER_SUGGESTION;
     }
 }

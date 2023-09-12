@@ -18,8 +18,8 @@ public interface WorkerRepository extends BaseRepository<Worker, Long> {
     Optional<Worker> findByEmail(String email);
 
     @Modifying
-    @Query(" update Worker w set w.password = :newPassword where w.email = :email")
-    void editPassword(String email, String newPassword);
+    @Query(" update Worker w set w.password = :newPassword where w.id = :workerId")
+    void editPassword(Long workerId, String newPassword);
 
     @Query("select w from Worker w where w.status= :workerStatus")
     List<Worker> findAllByWorkerStatus(WorkerStatus workerStatus);

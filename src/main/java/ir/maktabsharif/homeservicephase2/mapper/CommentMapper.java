@@ -15,11 +15,11 @@ public class CommentMapper {
         return commentResponseDTO;
     }
 
-    public Comment convertToComment(CommentRequestDTO commentRequestDTO) {
-        Comment comment = new Comment();
-        comment.setTextComment(commentRequestDTO.getComment());
-        comment.setScore(commentRequestDTO.getScore());
-        return comment;
+    public Comment convertToComment(CommentRequestDTO dto) {
+        return new Comment(
+                dto.getScore(),
+                dto.getComment()
+        );
     }
 
 }

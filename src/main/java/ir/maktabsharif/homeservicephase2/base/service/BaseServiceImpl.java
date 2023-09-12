@@ -21,6 +21,11 @@ public abstract class BaseServiceImpl<E extends BaseEntity<ID>
     }
 
     @Override
+    public boolean isExistById(ID id) {
+        return repository.existsById(id);
+    }
+
+    @Override
     @Transactional
     public void save(E e) {
         repository.save(e);

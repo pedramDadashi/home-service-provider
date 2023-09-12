@@ -1,52 +1,45 @@
 package ir.maktabsharif.homeservicephase2.entity.offer;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import ir.maktabsharif.homeservicephase2.base.entity.BaseEntity;
+import ir.maktabsharif.homeservicephase2.entity.offer.enums.OfferStatus;
 import ir.maktabsharif.homeservicephase2.entity.order.Order;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
+import static lombok.AccessLevel.PRIVATE;
+
+@Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
-
+@FieldDefaults(level = PRIVATE)
 public class Offer extends BaseEntity<Long> {
 
-//    private String offerName;
-    private Long proposedPrice;
-    private LocalDateTime executionTime;
-    @Enumerated(value = EnumType.STRING)
-    private TimeType timeType;
-    private Integer durationTime;
-    private OfferStatus offerStatus;
-    private LocalDateTime endTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime executionTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime endTime;
+    Long proposedPrice;
+    OfferStatus offerStatus;
     @ManyToOne
-    private Order order;
+    Order order;
     @ManyToOne
-    private Worker worker;
+    Worker worker;
 
-    public Offer(/*String offerName,*/ Long proposedPrice, LocalDateTime executionTime
-            , TimeType timeType, Integer durationTime
-            , LocalDateTime endTime) {
-//        this.offerName = offerName;
-        this.proposedPrice = proposedPrice;
+    public Offer(LocalDateTime executionTime, LocalDateTime endTime, Long proposedPrice) {
         this.executionTime = executionTime;
-        this.timeType = timeType;
-        this.durationTime = durationTime;
         this.endTime = endTime;
+        this.proposedPrice = proposedPrice;
         this.offerStatus = OfferStatus.WAITING;
     }
-
 
 }

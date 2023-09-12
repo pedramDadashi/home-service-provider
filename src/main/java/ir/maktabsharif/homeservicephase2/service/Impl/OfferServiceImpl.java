@@ -2,7 +2,7 @@ package ir.maktabsharif.homeservicephase2.service.Impl;
 
 import ir.maktabsharif.homeservicephase2.base.service.BaseServiceImpl;
 import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
-import ir.maktabsharif.homeservicephase2.entity.offer.OfferStatus;
+import ir.maktabsharif.homeservicephase2.entity.offer.enums.OfferStatus;
 import ir.maktabsharif.homeservicephase2.repository.OfferRepository;
 import ir.maktabsharif.homeservicephase2.service.OfferService;
 import org.springframework.stereotype.Service;

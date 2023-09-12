@@ -9,15 +9,15 @@ import org.springframework.stereotype.Component;
 public class MainServiceMapper {
 
     public MainServiceResponseDTO convertToDTO(MainService mainService) {
-        MainServiceResponseDTO mainServiceResponseDTO = new MainServiceResponseDTO();
-        mainServiceResponseDTO.setName(mainService.getName());
-        return mainServiceResponseDTO;
+        return new MainServiceResponseDTO(
+                mainService.getName()
+        );
     }
 
-    public MainService convertToMainService(MainServiceRequestDTO mainServiceRequestDTO) {
-        MainService mainService = new MainService();
-        mainService.setName(mainServiceRequestDTO.getName());
-        return mainService;
+    public MainService convertToMainService(MainServiceRequestDTO dto) {
+        return new MainService(
+                dto.getName()
+        );
     }
 
 }

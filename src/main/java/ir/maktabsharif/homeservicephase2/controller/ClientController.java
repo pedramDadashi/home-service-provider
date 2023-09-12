@@ -1,13 +1,14 @@
 package ir.maktabsharif.homeservicephase2.controller;
 
-import cn.apiclub.captcha.Captcha;
 import ir.maktabsharif.homeservicephase2.dto.request.*;
 import ir.maktabsharif.homeservicephase2.dto.response.*;
+import ir.maktabsharif.homeservicephase2.entity.user.Users;
 import ir.maktabsharif.homeservicephase2.service.ClientService;
-import ir.maktabsharif.homeservicephase2.util.CaptchaUtil;
+import ir.maktabsharif.homeservicephase2.util.Validation;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -15,27 +16,27 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/client")
 @RequiredArgsConstructor
 public class ClientController {
 
     private final ClientService clientService;
+    private final Validation validation;
 
 
-
-    @PostMapping("/login")
-    @ResponseBody
-    public ResponseEntity<ProjectResponse> login(@RequestBody LoginDTO clientLoginDto) {
-        return ResponseEntity.ok().body(clientService.loginClient(clientLoginDto));
+    @PutMapping("/add-address")
+    public ResponseEntity<ProjectResponse> addAddress(
+            @RequestBody AddressDTO addressDTO, Authentication authentication) {
+        return ResponseEntity.ok().body(clientService
+                .addAddress(addressDTO, ((Users) authentication.getPrincipal()).getId()));
     }
 
     @PutMapping("/change-password")
-    @ResponseBody
-    public ResponseEntity<ProjectResponse> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
-        System.out.println("inja");
-        return ResponseEntity.ok().body(clientService.editPassword(changePasswordDTO));
+    public ResponseEntity<ProjectResponse> changePassword(
+            @RequestBody ChangePasswordDTO changePasswordDTO, Authentication authentication) {
+        return ResponseEntity.ok().body(clientService
+                .editPassword(changePasswordDTO, ((Users) authentication.getPrincipal()).getId()));
     }
 
     @GetMapping("/show-all-main-services")
@@ -43,85 +44,100 @@ public class ClientController {
         return clientService.showAllMainServices();
     }
 
-    @GetMapping("/show-all-jobs-by-service/{mainServiceId}")
-    public List<JobResponseDTO> findAllJobs(@PathVariable Long mainServiceId) {
-        return clientService.showJobs(mainServiceId);
+    @GetMapping("/show-all-jobs-by-service/{mainServiceName}")
+    public List<JobResponseDTO> findAllJobs(@PathVariable String mainServiceName) {
+        return clientService.showJobs(mainServiceName);
     }
 
     @PostMapping("/submit-order")
-    public ResponseEntity<ProjectResponse> submitOrder(@RequestBody @Validated SubmitOrderDTO submitOrderDTO) {
-        return ResponseEntity.ok().body(clientService.addNewOrder(submitOrderDTO));
+    public ResponseEntity<ProjectResponse> submitOrder(
+            @RequestBody @Validated SubmitOrderDTO submitOrderDTO, Authentication authentication) {
+        return ResponseEntity.ok().body(clientService.addNewOrder(
+                submitOrderDTO, ((Users) authentication.getPrincipal()).getId()));
     }
 
-    @GetMapping("/show-all-orders/{clientId}")
-    public List<OrderResponseDTO> showAllOrders(@PathVariable Long clientId) {
-        return clientService.showAllOrders(clientId);
+    @GetMapping("/show-all-orders")
+    public List<OrderResponseDTO> showAllOrders(Authentication authentication) {
+        return clientService.showAllOrders(
+                ((Users) authentication.getPrincipal()).getId());
+    }
+
+    @GetMapping("/filter-order/{orderStatus}")
+    public List<FilterOrderResponseDTO> filterOrder(
+            @PathVariable String orderStatus, Authentication authentication) {
+        return clientService.filterOrder(orderStatus,
+                ((Users) authentication.getPrincipal()).getId());
+    }
+
+    @GetMapping("/show-my-credit")
+    public Long showClientCredit(Authentication authentication) {
+        return clientService.getClientCredit(
+                ((Users) authentication.getPrincipal()).getId());
     }
 
     @GetMapping("/show-all-offer-by-score/{orderId}")
-    public List<OfferResponseDTO> showAllOfferForOrderByWorkerScore(@PathVariable Long orderId) {
-        return clientService.findOfferListByOrderIdBasedOnWorkerScore(orderId);
+    public List<OfferResponseDTO> showAllOfferForOrderByWorkerScore(
+            @PathVariable Long orderId, Authentication authentication) {
+        return clientService.findOfferListByOrderIdBasedOnWorkerScore(
+                orderId, ((Users) authentication.getPrincipal()));
     }
 
     @GetMapping("/show-all-offer-by-price/{orderId}")
-    public List<OfferResponseDTO> showAllOfferForOrderByProposedPrice(@PathVariable Long orderId) {
-        return clientService.findOfferListByOrderIdBasedOnProposedPrice(orderId);
+    public List<OfferResponseDTO> showAllOfferForOrderByProposedPrice(
+            @PathVariable Long orderId, Authentication authentication) {
+        return clientService.findOfferListByOrderIdBasedOnProposedPrice(
+                orderId, ((Users) authentication.getPrincipal()));
     }
 
-    @PutMapping("/chose-offer-for-order/{offerId}")
-    public ResponseEntity<ProjectResponse> choseWorkerForOrder(@PathVariable Long offerId) {
-        return ResponseEntity.ok().body(clientService.choseWorkerForOrder(offerId));
+    @PutMapping("/choose-offer-for-order/{offerId}")
+    public ResponseEntity<ProjectResponse> chooseWorkerForOrder(
+            @PathVariable Long offerId, Authentication authentication) {
+        return ResponseEntity.ok().body(clientService.chooseWorkerForOrder(
+                offerId, ((Users) authentication.getPrincipal())));
     }
 
-    @PutMapping("/order-start/{orderId}")
-    public ResponseEntity<ProjectResponse> orderStarted(@PathVariable Long orderId) {
-        return ResponseEntity.ok().body(clientService.changeOrderStatusToStarted(orderId));
+    @PutMapping("/order-started/{orderId}")
+    public ResponseEntity<ProjectResponse> orderStarted(
+            @PathVariable Long orderId, Authentication authentication) {
+        return ResponseEntity.ok().body(clientService.changeOrderStatusToStarted(
+                orderId, ((Users) authentication.getPrincipal())));
     }
 
-    @PutMapping("/order-done/{orderId}")
-    public ResponseEntity<ProjectResponse> orderDone(@PathVariable Long orderId) {
-        return ResponseEntity.ok().body(clientService.changeOrderStatusToDone(orderId));
+    @PutMapping("/order-doned/{orderId}")
+    public ResponseEntity<ProjectResponse> orderDoned(
+            @PathVariable Long orderId, Authentication authentication) {
+        return ResponseEntity.ok().body(clientService.changeOrderStatusToDone(
+                orderId, ((Users) authentication.getPrincipal())));
     }
 
-    @PostMapping("/add-comment")
-    @ResponseBody
-    public ResponseEntity<ProjectResponse> addComment(@RequestBody CommentRequestDTO commentRequestDTO) {
-        return ResponseEntity.ok().body(clientService.addComment(commentRequestDTO));
+    @PostMapping("/register-comment")
+    public ResponseEntity<ProjectResponse> registerComment(
+            @RequestBody CommentRequestDTO commentRequestDTO, Authentication authentication) {
+        return ResponseEntity.ok().body(clientService.registerComment(
+                commentRequestDTO, ((Users) authentication.getPrincipal())));
     }
 
-    @PutMapping("/paid-in-app-credit")
-    public ResponseEntity<ProjectResponse> payByInApp(@RequestBody @Validated ClientIdOrderIdDTO dto) {
-        ProjectResponse projectResponse = clientService.paidByInAppCredit(dto);
-        return ResponseEntity.ok().body(projectResponse);
-    }
-
-    private void setupCaptchaAndPrice(PaymentPageDTO dto) {
-        Captcha captcha = CaptchaUtil.createCaptcha(200, 50);
-        dto.setHidden(captcha.getAnswer());
-        dto.setCaptcha("");
-        dto.setImage(CaptchaUtil.encodeBase64(captcha));
+    @PutMapping("/paid-in-app-credit/{orderId}")
+    public ResponseEntity<ProjectResponse> payByInApp(
+            @PathVariable Long orderId, Authentication authentication) {
+        return ResponseEntity.ok().body(clientService.paidByInAppCredit(
+                orderId, ((Users) authentication.getPrincipal())));
     }
 
     @Transactional
-    @GetMapping("/pay-with-order-id/{clientId}/{orderId}")
-    public ModelAndView pay(@PathVariable Long clientId, @PathVariable Long orderId, Model model) {
-        PaymentPageDTO paymentPageDTO = new PaymentPageDTO();
-        ClientIdOrderIdDTO clientIdOrderIdDTO =new ClientIdOrderIdDTO(clientId,orderId);
-        paymentPageDTO.setClientIdOrderIdDTO(clientIdOrderIdDTO);
-        paymentPageDTO.setPrice(clientService.paymentPriceCalculator(orderId, clientId));
-        setupCaptchaAndPrice(paymentPageDTO);
-        model.addAttribute("dto", paymentPageDTO);
-        return new ModelAndView("payment");
+    @GetMapping("/pay-online-payment/{orderId}")
+    public ModelAndView payByOnlinePayment(
+            @PathVariable Long orderId, Model model, Authentication authentication) {
+        return clientService.payByOnlinePayment(
+                orderId, ((Users) authentication.getPrincipal()), model);
     }
 
-
     @PostMapping("/send-payment-info")
-    public ResponseEntity<ProjectResponse> paymentInfo(@ModelAttribute @Validated PaymentRequestDTO dto) {
-        clientService.paymentRequestValidation(dto);
-        ProjectResponse projectResponse = clientService.changeOrderStatusToPaidByOnlinePayment(
-                dto.getClientIdOrderIdDTO()
-        );
-        return ResponseEntity.ok().body(projectResponse);
+    public ResponseEntity<ProjectResponse> paymentInfo(
+            @ModelAttribute @Validated PaymentRequestDTO dto) {
+        validation.checkPaymentRequest(dto);
+        return ResponseEntity.ok().body(clientService.changeOrderStatusToPaidByOnlinePayment(
+                dto.getClientIdOrderIdDTO()));
     }
 
 }

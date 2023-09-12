@@ -1,9 +1,9 @@
 //package ir.maktabsharif.homeservicephase2.service.Impl;
 //
-//import ir.maktabsharif.homeservicephase2.entity.job.Job;
+//import ir.maktabsharif.homeservicephase2.entity.service.Job;
 //import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
-//import ir.maktabsharif.homeservicephase2.entity.offer.TimeType;
-//import ir.maktabsharif.homeservicephase2.entity.order.OrderStatus;
+//import ir.maktabsharif.homeservicephase2.entity.offer.enums.TimeType;
+//import ir.maktabsharif.homeservicephase2.entity.order.enums.OrderStatus;
 //import ir.maktabsharif.homeservicephase2.entity.service.MainService;
 //import ir.maktabsharif.homeservicephase2.entity.user.Client;
 //import ir.maktabsharif.homeservicephase2.entity.user.Worker;

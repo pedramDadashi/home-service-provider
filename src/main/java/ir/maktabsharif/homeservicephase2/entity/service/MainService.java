@@ -1,33 +1,34 @@
 package ir.maktabsharif.homeservicephase2.entity.service;
 
 import ir.maktabsharif.homeservicephase2.base.entity.BaseEntity;
-import ir.maktabsharif.homeservicephase2.entity.job.Job;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+
+import static lombok.AccessLevel.PRIVATE;
 
 
+@Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
-
+@FieldDefaults(level = PRIVATE)
 public class MainService extends BaseEntity<Long> {
 
     @Column(nullable = false)
-    private String name;
+    String name;
     @OneToMany(mappedBy = "mainService")
-    private List<Job> jobList = new ArrayList<>();
+    Set<Job> jobList = new HashSet<>();
 
     public MainService(String name) {
         this.name = name;
     }
+
 }

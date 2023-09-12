@@ -2,7 +2,7 @@ package ir.maktabsharif.homeservicephase2.service;
 
 import ir.maktabsharif.homeservicephase2.base.service.BaseService;
 import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
-import ir.maktabsharif.homeservicephase2.entity.offer.OfferStatus;
+import ir.maktabsharif.homeservicephase2.entity.offer.enums.OfferStatus;
 
 import java.util.List;
 import java.util.Optional;

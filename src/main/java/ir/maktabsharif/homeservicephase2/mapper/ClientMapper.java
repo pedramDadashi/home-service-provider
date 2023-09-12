@@ -1,9 +1,9 @@
 package ir.maktabsharif.homeservicephase2.mapper;
 
 import ir.maktabsharif.homeservicephase2.dto.request.UserRegistrationDTO;
-import ir.maktabsharif.homeservicephase2.dto.response.ClientResponseDTO;
-import ir.maktabsharif.homeservicephase2.dto.response.FilterClientResponseDTO;
+import ir.maktabsharif.homeservicephase2.dto.response.FilterUserResponseDTO;
 import ir.maktabsharif.homeservicephase2.entity.user.Client;
+import ir.maktabsharif.homeservicephase2.entity.user.enums.ClientStatus;
 import ir.maktabsharif.homeservicephase2.entity.user.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,14 +15,6 @@ public class ClientMapper {
 
     private final PasswordEncoder passwordEncoder;
 
-    public ClientResponseDTO convertToDTO(Client client) {
-        ClientResponseDTO clientResponseDTO = new ClientResponseDTO();
-        clientResponseDTO.setFirstname(client.getFirstname());
-        clientResponseDTO.setLastname(client.getLastname());
-        clientResponseDTO.setEmailAddress(client.getEmail());
-        return clientResponseDTO;
-    }
-
     public Client convertToNewClient(UserRegistrationDTO userRegistrationDTO) {
         Client client = new Client();
         client.setFirstname(userRegistrationDTO.getFirstname());
@@ -31,27 +23,27 @@ public class ClientMapper {
         client.setPassword(passwordEncoder.encode(userRegistrationDTO.getPassword()));
         client.setRole(Role.CLIENT);
         client.setCredit(0L);
-        client.setIsActive(true);
+        client.setIsActive(false);
+        client.setPaidCounter(0);
+        client.setClientStatus(ClientStatus.HAS_NOT_ORDER_YET);
         return client;
     }
 
-    public Client convertToClient(UserRegistrationDTO userRegistrationDTO) {
-        Client client = new Client();
-        client.setFirstname(userRegistrationDTO.getFirstname());
-        client.setLastname(userRegistrationDTO.getLastname());
-        client.setEmail(userRegistrationDTO.getEmail());
-        client.setPassword(passwordEncoder.encode(userRegistrationDTO.getPassword()));
-        client.setRole(Role.CLIENT);
-        return client;
-    }
-
-    public FilterClientResponseDTO convertToFilterDTO(Client client) {
-        FilterClientResponseDTO fcrDTO = new FilterClientResponseDTO();
-        fcrDTO.setId(client.getId());
-        fcrDTO.setFirstname(client.getFirstname());
-        fcrDTO.setLastname(client.getLastname());
-        fcrDTO.setEmail(client.getEmail());
-        fcrDTO.setCredit(client.getCredit());
-        return fcrDTO;
+    public FilterUserResponseDTO convertToFilterDTO(Client client) {
+        return new FilterUserResponseDTO(
+                client.getRegistrationTime(),
+                client.getRole().name(),
+                client.getClientStatus().name(),
+                client.getIsActive(),
+                client.getId(),
+                client.getFirstname(),
+                client.getLastname(),
+                client.getEmail(),
+                client.getEmail(),
+                client.getCredit(),
+                -1L,
+                client.getNumberOfOperation(),
+                client.getPaidCounter()
+        );
     }
 }

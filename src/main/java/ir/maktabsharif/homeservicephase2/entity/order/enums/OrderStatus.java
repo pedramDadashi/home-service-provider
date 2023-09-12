@@ -1,4 +1,4 @@
-package ir.maktabsharif.homeservicephase2.entity.order;
+package ir.maktabsharif.homeservicephase2.entity.order.enums;
 
 public enum OrderStatus {
 

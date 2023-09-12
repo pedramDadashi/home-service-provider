@@ -1,7 +1,9 @@
 package ir.maktabsharif.homeservicephase2.mapper;
 
+import ir.maktabsharif.homeservicephase2.dto.request.OfferRequestDTO;
 import ir.maktabsharif.homeservicephase2.dto.response.OfferResponseDTO;
 import ir.maktabsharif.homeservicephase2.entity.offer.Offer;
+import ir.maktabsharif.homeservicephase2.util.CustomDuration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -9,17 +11,29 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OfferMapper {
 
-//    private final OrderService orderService;
-//    private final WorkerService workerService;
+    private final CustomDuration customDuration;
 
     public OfferResponseDTO convertToDTO(Offer offer) {
-        OfferResponseDTO offerResponseDTO = new OfferResponseDTO();
-        offerResponseDTO.setOfferId(offer.getId());
-        offerResponseDTO.setOrderId(offer.getOrder().getId());
-        offerResponseDTO.setWorkerId(offer.getWorker().getId());
-        offerResponseDTO.setProposedStartDate(offer.getExecutionTime());
-        offerResponseDTO.setOfferPrice(offer.getProposedPrice());
-        return offerResponseDTO;
+        return new OfferResponseDTO(
+                offer.getId(),
+                offer.getWorker().getId(),
+                offer.getWorker().getUsername(),
+                offer.getOrder().getId(),
+                offer.getProposedPrice(),
+                offer.getOfferStatus(),
+                offer.getExecutionTime(),
+                offer.getEndTime(),
+                customDuration.getDuration(offer.getExecutionTime(),
+                        offer.getEndTime(), offer.getClass().getName())
+        );
+    }
+
+    public Offer convertToNewOffer(OfferRequestDTO dto) {
+        return new Offer(
+                dto.getProposedStartDate(),
+                dto.getProposedEndDate(),
+                dto.getOfferProposedPrice()
+        );
     }
 
 //    public Offer convertToOffer(OfferRequestDTO offerRequestDTO) {

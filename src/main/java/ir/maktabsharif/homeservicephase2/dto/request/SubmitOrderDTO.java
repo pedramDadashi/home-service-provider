@@ -12,14 +12,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class SubmitOrderDTO {
 
-    private Long clientId;
-    private Long jobId;
+    private String jobName;
     private Long clientProposedPrice;
     private String description;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime workStartDate;
-    private String address;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime workEndDate;
+    @NonNull
+    private String AddressTitle;
 
 }

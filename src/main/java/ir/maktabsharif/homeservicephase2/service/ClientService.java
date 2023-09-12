@@ -3,6 +3,9 @@ package ir.maktabsharif.homeservicephase2.service;
 import ir.maktabsharif.homeservicephase2.dto.request.*;
 import ir.maktabsharif.homeservicephase2.dto.response.*;
 import ir.maktabsharif.homeservicephase2.entity.user.Client;
+import ir.maktabsharif.homeservicephase2.entity.user.Users;
+import org.springframework.ui.Model;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,47 +27,43 @@ public interface ClientService extends UsersService<Client> {
     @Override
     Optional<Client> findByUsername(String email);
 
-    Long paymentPriceCalculator(Long orderId, Long clientId);
+    List<OfferResponseDTO> findOfferListByOrderIdBasedOnProposedPrice(Long orderId,Users users);
 
-    List<OfferResponseDTO> findOfferListByOrderIdBasedOnProposedPrice(Long orderId);
+    List<OfferResponseDTO> findOfferListByOrderIdBasedOnWorkerScore(Long orderId,Users users);
 
-    List<OfferResponseDTO> findOfferListByOrderIdBasedOnWorkerScore(Long orderId);
+    List<FilterUserResponseDTO> clientFilter(FilterUserDTO clientDTO);
 
-    List<FilterClientResponseDTO> clientFilter(FilterClientDTO clientDTO);
-
-    ProjectResponse addClient(UserRegistrationDTO clientRegistrationDTO);
+    List<FilterUserResponseDTO> allClient(FilterUserDTO userDTO);
 
     String addNewClient(UserRegistrationDTO clientRegistrationDTO);
 
-    ProjectResponse loginClient(LoginDTO clientLoginDto);
-
-    ProjectResponse editPassword(ChangePasswordDTO changePasswordDTO);
+    ProjectResponse editPassword(ChangePasswordDTO changePasswordDTO, Long clientId);
 
     List<MainServiceResponseDTO> showAllMainServices();
 
-    List<JobResponseDTO> showJobs(Long mainServiceId);
+    List<JobResponseDTO> showJobs(String mainServiceName);
 
-    ProjectResponse addNewOrder(SubmitOrderDTO submitOrderDTO);
+    ProjectResponse addNewOrder(SubmitOrderDTO submitOrderDTO, Long clientId);
 
-    ProjectResponse choseWorkerForOrder(Long offerId);
+    ProjectResponse chooseWorkerForOrder(Long offerId,Users users);
 
-    ProjectResponse changeOrderStatusToStarted(Long orderId);
+    ProjectResponse changeOrderStatusToStarted(Long orderId,Users users);
 
-    ProjectResponse changeOrderStatusToDone(Long orderId);
+    ProjectResponse changeOrderStatusToDone(Long orderId,Users users);
 
-    ProjectResponse addComment(CommentRequestDTO commentRequestDTO);
+    ProjectResponse registerComment(CommentRequestDTO commentRequestDTO,Users users);
 
     List<OrderResponseDTO> showAllOrders(Long clientId);
 
-//    List<OfferResponseDTO> showAllOfferForOrder(Long orderId);
-
-    Long getWorkerCredit(Long workerId);
-
-//    Long paymentPriceCalculator(Long orderId, Long clientId);
-
-    void paymentRequestValidation(PaymentRequestDTO dto);
-
     ProjectResponse changeOrderStatusToPaidByOnlinePayment(ClientIdOrderIdDTO clientIdOrderIdDTO);
 
-    ProjectResponse paidByInAppCredit(ClientIdOrderIdDTO dto);
+    ProjectResponse paidByInAppCredit(Long orderId, Users client);
+
+    ModelAndView payByOnlinePayment(Long orderId, Users users, Model model);
+
+    ProjectResponse addAddress(AddressDTO addressDTO, Long clientId);
+
+    Long getClientCredit(Long clientId);
+
+    List<FilterOrderResponseDTO> filterOrder(String orderStatus, Long clientid);
 }

@@ -3,8 +3,8 @@ package ir.maktabsharif.homeservicephase2.service;
 import ir.maktabsharif.homeservicephase2.dto.request.*;
 import ir.maktabsharif.homeservicephase2.dto.response.*;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
-import ir.maktabsharif.homeservicephase2.entity.user.enums.WorkerStatus;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,25 +25,25 @@ public interface WorkerService extends UsersService<Worker> {
     @Override
     Optional<Worker> findByUsername(String email);
 
-    ProjectResponse editPassword(ChangePasswordDTO changePasswordDTO);
+    ProjectResponse editPassword(ChangePasswordDTO changePasswordDTO,Long workerId);
 
-    void changeWorkerStatus(String workerUsername, WorkerStatus workerStatus);
+//    void changeWorkerStatus(String workerUsername, WorkerStatus workerStatus);
 
-    List<FilterWorkerResponseDTO> workerFilter(FilterWorkerDTO workerDTO);
+    List<FilterUserResponseDTO> workerFilter(FilterUserDTO workerDTO);
 
-    ProjectResponse addWorker(UserRegistrationDTO workerRegistrationDTO);
+//    ProjectResponse addWorker(UserRegistrationDTO workerRegistrationDTO);
 
-    String addNewWorker(UserRegistrationDTO workerRegistrationDTO);
+    String addNewWorker(UserRegistrationDTO workerRegistrationDTO) throws IOException;
 
-    ProjectResponse loginWorker(LoginDTO workerLoginDto);
+//    ProjectResponse loginWorker(LoginDTO workerLoginDto);
 
     List<MainServiceResponseDTO> showAllMainServices();
 
-    List<JobResponseDTO> showJobs(Long mainServiceId);
+    List<JobResponseDTO> showJobs(ChooseMainServiceDTO dto);
 
-    List<OrderResponseDTO> showRelatedOrders(Long workerId);
+    List<LimitedOrderResponseDTO> showRelatedOrders(Long workerId);
 
-    ProjectResponse submitAnOffer(OfferRequestDTO offerRequestDTO);
+    ProjectResponse submitAnOffer(OfferRequestDTO offerRequestDTO,Long workerId);
 
     double getWorkerRate(Long workerId);
 
@@ -54,4 +54,6 @@ public interface WorkerService extends UsersService<Worker> {
     List<OfferResponseDTO> showAllOffersRejected(Long workerId);
 
     Long getWorkerCredit(Long workerId);
+
+    List<FilterUserResponseDTO> allWorker(FilterUserDTO userDTO);
 }

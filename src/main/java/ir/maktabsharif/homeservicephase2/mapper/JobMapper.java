@@ -2,7 +2,7 @@ package ir.maktabsharif.homeservicephase2.mapper;
 
 import ir.maktabsharif.homeservicephase2.dto.request.JobRequestDTO;
 import ir.maktabsharif.homeservicephase2.dto.response.JobResponseDTO;
-import ir.maktabsharif.homeservicephase2.entity.job.Job;
+import ir.maktabsharif.homeservicephase2.entity.service.Job;
 import ir.maktabsharif.homeservicephase2.entity.service.MainService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,22 +15,22 @@ public class JobMapper {
 
 
     public JobResponseDTO convertToDTO(Job job) {
-        JobResponseDTO jobResponseDTO = new JobResponseDTO();
-        jobResponseDTO.setMainServiceResponseDTO(
-                mainServiceMapper.convertToDTO(job.getMainService()));
-        jobResponseDTO.setName(job.getName());
-        jobResponseDTO.setBasePrice(job.getBasePrice());
-        jobResponseDTO.setDescription(job.getDescription());
-        return jobResponseDTO;
+        return new JobResponseDTO(
+                job.getMainService().getName(),
+                job.getId(),
+                job.getName(),
+                job.getDescription(),
+                job.getBasePrice()
+        );
     }
 
-    public Job convertToJob(JobRequestDTO jobRequestDTO) {
-        Job job = new Job();
-        job.setMainService(new MainService(jobRequestDTO.getMainServiceRequest()));
-        job.setName(jobRequestDTO.getName());
-        job.setBasePrice(jobRequestDTO.getBasePrice());
-        job.setDescription(jobRequestDTO.getDescription());
-        return job;
+    public Job convertToJob(JobRequestDTO jrDTO) {
+        return new Job(
+                jrDTO.getName(),
+                jrDTO.getBasePrice(),
+                jrDTO.getDescription(),
+                new MainService(jrDTO.getMainServiceRequest())
+        );
     }
 
 }

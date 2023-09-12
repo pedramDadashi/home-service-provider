@@ -1,9 +1,15 @@
 package ir.maktabsharif.homeservicephase2.util;
 
+import ir.maktabsharif.homeservicephase2.dto.request.AddressDTO;
+import ir.maktabsharif.homeservicephase2.dto.request.PaymentRequestDTO;
+import ir.maktabsharif.homeservicephase2.entity.user.Client;
+import ir.maktabsharif.homeservicephase2.entity.user.Worker;
 import ir.maktabsharif.homeservicephase2.exception.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.DateTimeException;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -16,13 +22,18 @@ public class Validation {
     }
 
     public boolean checkText(String text) {
-        String textRegex = "^[a-zA-Z]*$";
+        String textRegex = "^[^0-9]+$";
         if (!Pattern.matches(textRegex, text))
             throw new AlphabetException("the wording of the text is not incorrect!");
         return true;
     }
 
     public boolean checkPositiveNumber(Long longDigit) {
+        if (longDigit <= 0)
+            throw new PositiveNumberException("the number is negative!");
+        return true;
+    }
+    public boolean checkPositiveNumber(Double longDigit) {
         if (longDigit <= 0)
             throw new PositiveNumberException("the number is negative!");
         return true;
@@ -59,6 +70,53 @@ public class Validation {
     public boolean checkScore(int score) {
         if (score < 0 || score > 5)
             throw new PositiveNumberException("the score must be between 0 to 5!");
+        return true;
+    }
+
+    public boolean checkOwnerOfTheOrder(Long orderId, Client client) {
+        if (client.getOrderList().stream().filter(o -> o.getId().equals(orderId)).findFirst().isEmpty())
+            throw new OrderIsNotExistException("you are not the owner of this order");
+        return true;
+    }
+
+    public boolean checkOfferBelongToTheOrder(Long offerId, Client client) {
+        boolean[] exist = new boolean[1];
+        client.getOrderList().forEach(order -> exist[0] = order.getOfferList().stream().filter(offer ->
+                offer.getId().equals(offerId)).findFirst().isEmpty());
+        if (exist[0])
+            throw new OfferNotExistException("this offer not belong to your orders");
+        return true;
+    }
+
+    public boolean checkOwnerOfTheOffer(Long offerId, Worker worker) {
+        if (worker.getOfferList().stream().filter(o -> o.getId().equals(offerId)).findFirst().isEmpty())
+            throw new OrderIsNotExistException("you are not the owner of this offer");
+        return true;
+    }
+
+    public boolean checkPaymentRequest(PaymentRequestDTO dto) {
+        if (!dto.getCaptcha().equals(dto.getHidden())) {
+            throw new CaptchaException("wrong captcha");
+        }
+        if (Integer.parseInt(dto.getYear()) < LocalDateTime.now().getYear()) {
+            throw new DateTimeException("expired card ");
+        }
+        if (Integer.parseInt(dto.getYear()) == LocalDateTime.now().getYear() &&
+            Integer.parseInt(dto.getMonth()) < LocalDateTime.now().getMonth().getValue()) {
+            throw new DateTimeException("expired card ");
+        }
+        return true;
+    }
+
+    public boolean checkAddress(AddressDTO dto) {
+        if (
+                dto.getTitle().isBlank() ||
+                dto.getProvince().isBlank() ||
+                dto.getCity().isBlank() ||
+                dto.getAvenue().isBlank() ||
+                dto.getPostalCode().isBlank()
+        )
+            throw new AddressFormatException("your address is invalid!");
         return true;
     }
 }

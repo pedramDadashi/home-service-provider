@@ -12,7 +12,6 @@ import java.util.Optional;
 @Repository
 public interface ClientRepository extends BaseRepository<Client,Long> {
 
-    boolean existsByEmail(String email);
 
     Optional<Client> findByEmail(String email);
 

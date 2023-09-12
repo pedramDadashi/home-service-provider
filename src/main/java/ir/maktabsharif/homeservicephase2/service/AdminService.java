@@ -2,10 +2,17 @@ package ir.maktabsharif.homeservicephase2.service;
 
 import ir.maktabsharif.homeservicephase2.dto.request.*;
 import ir.maktabsharif.homeservicephase2.dto.response.*;
+import ir.maktabsharif.homeservicephase2.entity.user.Admin;
 
 import java.util.List;
 
-public interface AdminService {
+public interface AdminService extends UsersService<Admin> {
+
+    @Override
+    void save(Admin admin);
+
+    @Override
+    List<Admin> findAll();
 
     ProjectResponse createMainService(MainServiceRequestDTO msDTO);
 
@@ -33,9 +40,9 @@ public interface AdminService {
 
     ProjectResponse deActiveWorker(Long workerId);
 
-    List<FilterWorkerResponseDTO> workerFilter(FilterWorkerDTO workerDTO);
+    List<FilterUserResponseDTO> userFilter(FilterUserDTO userDTO);
 
-    List<FilterClientResponseDTO> clientFilter(FilterClientDTO clientDTO);
+    String addNewAdmin(AdminRegistrationDTO dto);
 
-//    List<FilterWorkerResponseDTO> userFilter(FilterWorkerDTO workerDTO);
+    List<FilterOrderResponseDTO> orderFilter(FilterOrderDTO orderDTO);
 }
