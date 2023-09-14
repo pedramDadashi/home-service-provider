@@ -44,7 +44,7 @@ public class Order extends BaseEntity<Long> {
     Client client;
     @ManyToOne(cascade = MERGE)
     Job job;
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order",fetch = FetchType.EAGER)
     List<Offer> offerList = new ArrayList<>();
     @OneToOne
     Comment comment;

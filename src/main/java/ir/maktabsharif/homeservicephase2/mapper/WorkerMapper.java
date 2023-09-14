@@ -1,6 +1,6 @@
 package ir.maktabsharif.homeservicephase2.mapper;
 
-import ir.maktabsharif.homeservicephase2.dto.request.UserRegistrationDTO;
+import ir.maktabsharif.homeservicephase2.dto.request.WorkerRegistrationDTO;
 import ir.maktabsharif.homeservicephase2.dto.response.FilterUserResponseDTO;
 import ir.maktabsharif.homeservicephase2.dto.response.WorkerResponseDTO;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
@@ -27,19 +27,22 @@ public class WorkerMapper {
                 worker.getScore(),
                 worker.getCredit(),
                 worker.getNumberOfOperation(),
-                worker.getRateCounter()
+                worker.getPaidCounter(),
+                worker.getRegistrationTime()
         );
     }
 
-    public Worker convertToNewWorker(UserRegistrationDTO userRegistrationDTO) throws IOException {
-        return new Worker(
-                userRegistrationDTO.getFirstname(),
-                userRegistrationDTO.getLastname(),
-                userRegistrationDTO.getEmail(),
-                passwordEncoder.encode(userRegistrationDTO.getPassword()),
-                userRegistrationDTO.getProvince(),
-                userRegistrationDTO.getFile().getBytes()
+    public Worker convertToNewWorker(WorkerRegistrationDTO workerRegistrationDTO) throws IOException {
+        Worker worker = new Worker(
+                workerRegistrationDTO.getFirstname(),
+                workerRegistrationDTO.getLastname(),
+                workerRegistrationDTO.getEmail(),
+                passwordEncoder.encode(workerRegistrationDTO.getPassword()),
+                workerRegistrationDTO.getProvince()
         );
+            worker.setImage(workerRegistrationDTO.getFile().getBytes());
+
+        return worker;
     }
 
     public FilterUserResponseDTO convertToFilterDTO(Worker worker) {

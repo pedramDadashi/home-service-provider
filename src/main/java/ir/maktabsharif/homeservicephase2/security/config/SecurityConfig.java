@@ -31,9 +31,9 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests((requests) -> requests
                                 .requestMatchers("/registration/**").permitAll()
                                 .requestMatchers("/manager/**").hasAuthority(MANAGER.name())
-                                .requestMatchers("/admin/**").hasAuthority(ADMIN.name())
-//                                .requestMatchers("/admin/**").hasAnyAuthority(ADMIN.name(),MANAGER.name())
+                                .requestMatchers("/admin/**").hasAnyAuthority(ADMIN.name(), MANAGER.name())
                                 .requestMatchers("/client/**").hasAuthority(CLIENT.name())
+                                .requestMatchers("/worker/**").hasAuthority(WORKER.name())
                                 .requestMatchers("/worker/**").hasAuthority(WORKER.name())
                                 .anyRequest().authenticated()
 

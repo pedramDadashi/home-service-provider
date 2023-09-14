@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 
-public class UserRegistrationDTO {
+public class WorkerRegistrationDTO {
 
     String firstname;
     String lastname;

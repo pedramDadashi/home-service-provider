@@ -1,19 +1,20 @@
 package ir.maktabsharif.homeservicephase2.dto.request;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class PaymentPageDTO {
-    private Long price;
-    private String captcha;
-    private String hidden;
-    private String image;
+    Long price;
+    String captcha;
+    String hidden;
+    String image;
     ClientIdOrderIdDTO clientIdOrderIdDTO;
 
 }

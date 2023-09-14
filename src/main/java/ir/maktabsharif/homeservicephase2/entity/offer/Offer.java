@@ -7,6 +7,8 @@ import ir.maktabsharif.homeservicephase2.entity.offer.enums.OfferStatus;
 import ir.maktabsharif.homeservicephase2.entity.order.Order;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,6 +31,7 @@ public class Offer extends BaseEntity<Long> {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime endTime;
     Long proposedPrice;
+    @Enumerated(value = EnumType.STRING)
     OfferStatus offerStatus;
     @ManyToOne
     Order order;

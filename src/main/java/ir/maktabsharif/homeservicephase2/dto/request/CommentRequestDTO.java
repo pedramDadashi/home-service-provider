@@ -13,10 +13,10 @@ import static lombok.AccessLevel.PRIVATE;
 @AllArgsConstructor
 @FieldDefaults(level = PRIVATE)
 public class CommentRequestDTO {
-
-     Long orderId;
-     String comment;
-     @NonNull
-     Integer score;
+    @NonNull
+    Long orderId;
+    String comment;
+    @NonNull
+    Integer score;
 
 }

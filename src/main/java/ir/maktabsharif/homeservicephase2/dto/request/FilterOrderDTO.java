@@ -1,8 +1,6 @@
 package ir.maktabsharif.homeservicephase2.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import ir.maktabsharif.homeservicephase2.entity.order.enums.OrderStatus;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,20 +16,17 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FilterOrderDTO {
 
+    Long mainServiceId;
     Long jobId;
-    String jobName;
     String description;
     OrderStatus orderStatus;
 
     Long minProposedPrice;
     Long maxProposedPrice;
 
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd' 'HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd' 'HH:mm:ss")
     LocalDateTime minOrderRegistrationDate;
-
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonFormat(shape=JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd' 'HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd' 'HH:mm:ss")
     LocalDateTime maxOrderRegistrationDate;
 
 }

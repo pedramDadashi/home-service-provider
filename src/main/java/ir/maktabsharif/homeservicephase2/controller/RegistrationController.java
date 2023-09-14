@@ -1,8 +1,9 @@
 package ir.maktabsharif.homeservicephase2.controller;
 
 import ir.maktabsharif.homeservicephase2.dto.request.AdminRegistrationDTO;
+import ir.maktabsharif.homeservicephase2.dto.request.ClientRegistrationDTO;
 import ir.maktabsharif.homeservicephase2.dto.request.ManagerRegistrationDTO;
-import ir.maktabsharif.homeservicephase2.dto.request.UserRegistrationDTO;
+import ir.maktabsharif.homeservicephase2.dto.request.WorkerRegistrationDTO;
 import ir.maktabsharif.homeservicephase2.service.RegistrationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -28,13 +29,13 @@ public class RegistrationController {
 
     @PostMapping("/signup-client")
     public String clientSingUp(
-            @RequestBody UserRegistrationDTO clientRegistrationDTO) {
+            @RequestBody ClientRegistrationDTO clientRegistrationDTO) {
         return registrationService.addClient(clientRegistrationDTO);
     }
 
     @PostMapping("/signup-worker")
     public String workerSingUp(
-            @ModelAttribute UserRegistrationDTO workerRegistrationDTO) throws IOException {
+            @ModelAttribute WorkerRegistrationDTO workerRegistrationDTO) throws IOException {
         return registrationService.addWorker(workerRegistrationDTO);
     }
 

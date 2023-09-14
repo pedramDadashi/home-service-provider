@@ -14,9 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.FetchType.EAGER;
@@ -35,7 +33,7 @@ public class Job extends BaseEntity<Long> {
     @ManyToOne
     MainService mainService;
     @ManyToMany(cascade = ALL, fetch = EAGER)
-    Set<Worker> workerSet = new HashSet<>();
+    List<Worker> worketList = new ArrayList<>();
     @OneToMany(mappedBy = "job")
     List<Order> orderList = new ArrayList<>();
 

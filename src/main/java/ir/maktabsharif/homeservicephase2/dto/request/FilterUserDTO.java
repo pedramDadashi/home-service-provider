@@ -22,9 +22,9 @@ public class FilterUserDTO {
      Boolean isActive;
      String userStatus;
 
-     @JsonFormat(pattern = "yyyy-MM-dd'")
+     @JsonFormat(pattern = "yyyy-MM-dd' 'HH:mm:ss")
      LocalDateTime minUserCreationAt;
-     @JsonFormat(pattern = "yyyy-MM-dd'")
+     @JsonFormat(pattern = "yyyy-MM-dd' 'HH:mm:ss")
      LocalDateTime maxUserCreationAt;
 
      Integer minNumberOfOperation;
@@ -34,11 +34,9 @@ public class FilterUserDTO {
      Integer maxNumberOfDoneOperation;
 
      Double minScore;
-     Double score;
      Double maxScore;
 
      Long minCredit;
-     Long credit;
      Long maxCredit;
 
 }

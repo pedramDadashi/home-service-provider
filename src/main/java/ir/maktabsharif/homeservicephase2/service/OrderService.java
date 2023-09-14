@@ -4,7 +4,6 @@ import ir.maktabsharif.homeservicephase2.base.service.BaseService;
 import ir.maktabsharif.homeservicephase2.dto.request.FilterOrderDTO;
 import ir.maktabsharif.homeservicephase2.dto.response.FilterOrderResponseDTO;
 import ir.maktabsharif.homeservicephase2.dto.response.LimitedOrderResponseDTO;
-import ir.maktabsharif.homeservicephase2.dto.response.OrderResponseDTO;
 import ir.maktabsharif.homeservicephase2.entity.order.Order;
 
 import java.util.List;
@@ -30,7 +29,7 @@ public interface OrderService extends BaseService<Order,Long> {
 
 //    List<Order> findByJobIdAndOrderStatus(Long jobId, OrderStatus orderStatusOne, OrderStatus orderStatusTwo);
 
-    List<OrderResponseDTO> findAllOrdersByJobName(String jobName);
+    List<FilterOrderResponseDTO> findAllOrdersByJobName(String jobName);
 
     List<FilterOrderResponseDTO> ordersFilter(FilterOrderDTO filterOrderDTO);
 

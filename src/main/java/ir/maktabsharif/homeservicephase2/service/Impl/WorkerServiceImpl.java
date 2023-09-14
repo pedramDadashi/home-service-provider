@@ -145,10 +145,10 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
     @Transactional(readOnly = true)
     public List<LimitedOrderResponseDTO> showRelatedOrders(Long workerId) {
         Optional<Worker> worker = repository.findById(workerId);
-        if (worker.get().getJobSet().isEmpty())
+        if (worker.get().getJobList().isEmpty())
             throw new WorkerNoAccessException("you do not have a job title!");
         List<LimitedOrderResponseDTO> lorDTOS = new ArrayList<>();
-        worker.get().getJobSet().forEach(job ->
+        worker.get().getJobList().forEach(job ->
                 lorDTOS.addAll(orderService.findAllOrdersByJobNameAndProvince(
                         job.getName(), worker.get().getProvince())));
         return lorDTOS;
@@ -170,7 +170,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
         if (!(orderStatus.equals(OrderStatus.WAITING_FOR_WORKER_SUGGESTION) ||
               orderStatus.equals(OrderStatus.WAITING_FOR_WORKER_SELECTION)))
             throw new OrderStatusException("!this order has already accepted the offer");
-        if (!(dbWorker.get().getJobSet().contains(order.get().getJob())))
+        if (!(dbWorker.get().getJobList().contains(order.get().getJob())))
             throw new WorkerNoAccessException("this dbWorker does not have such job title!");
         if (offerRequestDTO.getProposedEndDate().isBefore(offerRequestDTO.getProposedStartDate()))
             throw new TimeException("time does not go back!");

@@ -17,9 +17,9 @@ public class OfferRequestDTO {
 
     Long orderId;
     Long offerProposedPrice;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd' 'HH:mm:ss")
     LocalDateTime proposedStartDate;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd' 'HH:mm:ss")
     LocalDateTime proposedEndDate;
 
 }

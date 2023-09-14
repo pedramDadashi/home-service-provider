@@ -27,15 +27,9 @@ public interface WorkerService extends UsersService<Worker> {
 
     ProjectResponse editPassword(ChangePasswordDTO changePasswordDTO,Long workerId);
 
-//    void changeWorkerStatus(String workerUsername, WorkerStatus workerStatus);
-
     List<FilterUserResponseDTO> workerFilter(FilterUserDTO workerDTO);
 
-//    ProjectResponse addWorker(UserRegistrationDTO workerRegistrationDTO);
-
-    String addNewWorker(UserRegistrationDTO workerRegistrationDTO) throws IOException;
-
-//    ProjectResponse loginWorker(LoginDTO workerLoginDto);
+    String addNewWorker(WorkerRegistrationDTO workerRegistrationDTO) throws IOException;
 
     List<MainServiceResponseDTO> showAllMainServices();
 

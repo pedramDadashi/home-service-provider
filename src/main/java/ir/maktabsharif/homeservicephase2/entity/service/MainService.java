@@ -9,8 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -25,7 +25,7 @@ public class MainService extends BaseEntity<Long> {
     @Column(nullable = false)
     String name;
     @OneToMany(mappedBy = "mainService")
-    Set<Job> jobList = new HashSet<>();
+    List<Job> jobList = new ArrayList<>();
 
     public MainService(String name) {
         this.name = name;
