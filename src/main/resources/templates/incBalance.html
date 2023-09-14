@@ -17,9 +17,9 @@
             <h3>Payment Details</h3>
         </header>
 
-        <form method="post" id="myForm" th:action="@{/client/send-payment-info}" th:object="${dto}">
+        <form method="post" id="myForm" th:action="@{/client/send-increase-balance-info}" th:object="${bdto}">
             <div>
-                must be paid : <span th:text="${dto.price}">$ </span>
+                must be paid : <span th:text="${bdto.price}">$ </span>
             </div>
 
             <div>
@@ -70,8 +70,7 @@
                         <input class="form-control no-border" id="captcha" placeholder="captcha" type="text"
                                th:field="*{captcha}"/>
                         <input type="hidden" th:field="*{hidden}"/>
-                        <input type="hidden" value="orderId" th:field="*{clientIdOrderIdDTO.orderId}"/>
-                        <input type="hidden" value="customerId" th:field="*{clientIdOrderIdDTO.clientId}"/>
+                        <input type="hidden" value="customerId" th:field="*{clientId}"/>
                     </div>
                 </div>
                 <button class=" form-control no-border bg-secondary mt-2 " type="submit">Complete Purchase</button>
@@ -93,7 +92,7 @@
                         // formData.append("month",form.month.value)
                         // formData.append("year",form.year.value)
 
-                        fetch('/client/send-payment-info', {
+                        fetch('/client/send-increase-balance-info', {
                             method: 'POST',
                             body: formData
                         })
