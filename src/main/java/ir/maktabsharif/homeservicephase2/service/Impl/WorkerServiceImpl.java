@@ -82,7 +82,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
     }
 
     @Override
-    public String addNewWorker(UserRegistrationDTO workerRegistrationDTO) throws IOException {
+    public String addNewWorker(WorkerRegistrationDTO workerRegistrationDTO) throws IOException {
         validation.checkEmail(workerRegistrationDTO.getEmail());
         if (repository.findByEmail(workerRegistrationDTO.getEmail()).isPresent())
             throw new DuplicateEmailException("this Email already exist!");
@@ -144,7 +144,6 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
     @Override
     @Transactional(readOnly = true)
     public List<LimitedOrderResponseDTO> showRelatedOrders(Long workerId) {
-        validation.checkPositiveNumber(workerId);
         Optional<Worker> worker = repository.findById(workerId);
         if (worker.get().getJobSet().isEmpty())
             throw new WorkerNoAccessException("you do not have a job title!");
@@ -159,11 +158,11 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
     public ProjectResponse submitAnOffer(OfferRequestDTO offerRequestDTO, Long workerId) {
         validation.checkPositiveNumber(offerRequestDTO.getOrderId());
         validation.checkPositiveNumber(offerRequestDTO.getOfferProposedPrice());
-        Optional<Worker> worker = repository.findById(workerId);
-        if (!(worker.get().getIsActive()))
-            throw new WorkerNoAccessException("this worker is inActive");
-        if (!(worker.get().getStatus().equals(WorkerStatus.CONFIRMED)))
-            throw new WorkerNoAccessException("the status of worker is not CONFIRMED");
+        Optional<Worker> dbWorker = repository.findById(workerId);
+        if (!(dbWorker.get().getIsActive()))
+            throw new WorkerNoAccessException("this dbWorker is inActive");
+        if (!(dbWorker.get().getStatus().equals(WorkerStatus.CONFIRMED)))
+            throw new WorkerNoAccessException("the status of dbWorker is not CONFIRMED");
         Optional<Order> order = orderService.findById(offerRequestDTO.getOrderId());
         if (order.isEmpty())
             throw new OrderIsNotExistException("this order does not exist!");
@@ -171,8 +170,8 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
         if (!(orderStatus.equals(OrderStatus.WAITING_FOR_WORKER_SUGGESTION) ||
               orderStatus.equals(OrderStatus.WAITING_FOR_WORKER_SELECTION)))
             throw new OrderStatusException("!this order has already accepted the offer");
-        if (!(worker.get().getJobSet().contains(order.get().getJob())))
-            throw new WorkerNoAccessException("this worker does not have such job title!");
+        if (!(dbWorker.get().getJobSet().contains(order.get().getJob())))
+            throw new WorkerNoAccessException("this dbWorker does not have such job title!");
         if (offerRequestDTO.getProposedEndDate().isBefore(offerRequestDTO.getProposedStartDate()))
             throw new TimeException("time does not go back!");
         if (offerRequestDTO.getProposedStartDate().isBefore(order.get().getExecutionTime()))
@@ -180,12 +179,12 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
         if (order.get().getProposedPrice() > offerRequestDTO.getOfferProposedPrice())
             throw new AmountLessExseption("the proposed-price should not be lower than the order proposed-price!");
         Offer offer = offerMapper.convertToNewOffer(offerRequestDTO);
-        offer.setWorker(worker.get());
+        offer.setWorker(dbWorker.get());
         offer.setOrder(order.get());
         offerService.save(offer);
         if (orderStatus.equals(OrderStatus.WAITING_FOR_WORKER_SUGGESTION))
             order.get().setOrderStatus(OrderStatus.WAITING_FOR_WORKER_SELECTION);
-        worker.get().increaseNumberOfOperation();
+        dbWorker.get().setNumberOfOperation(dbWorker.get().getNumberOfOperation() + 1);
         orderService.save(order.get());
         return new ProjectResponse("200", "ADDED OFFER SUCCESSFUL");
     }
@@ -209,15 +208,6 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
             throw new WorkerIsNotExistException("this worker does not exist!");
         return worker.get().getCredit();
     }
-
-//    @Override
-//    public void changeWorkerStatus(String workerUsername, WorkerStatus workerStatus) {
-//        Optional<Worker> worker = repository.findByEmail(workerUsername);
-//        if (worker.isEmpty())
-//            throw new WorkerIsNotExistException("this worker does not exist!");
-//        worker.get().setStatus(workerStatus);
-//        repository.save(worker.get());
-//    }
 
     @Override
     @Transactional(readOnly = true)
@@ -277,13 +267,10 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Worker> workerCriteriaQuery = criteriaBuilder.createQuery(Worker.class);
         Root<Worker> workerRoot = workerCriteriaQuery.from(Worker.class);
-
         createFilters(workerDTO, predicateList, criteriaBuilder, workerRoot);
-
         Predicate[] predicates = new Predicate[predicateList.size()];
         predicateList.toArray(predicates);
         workerCriteriaQuery.select(workerRoot).where(predicates);
-
         List<Worker> resultList = entityManager.createQuery(workerCriteriaQuery).getResultList();
         List<FilterUserResponseDTO> fuDTOS = new ArrayList<>();
         resultList.forEach(rl -> fuDTOS.add(workerMapper.convertToFilterDTO(rl)));
@@ -292,107 +279,69 @@ public class WorkerServiceImpl extends BaseServiceImpl<Worker, Long, WorkerRepos
 
     private void createFilters(FilterUserDTO workerDTO, List<Predicate> predicateList,
                                CriteriaBuilder criteriaBuilder, Root<Worker> workerRoot) {
+
         if (workerDTO.getFirstname() != null) {
-            validation.checkText(workerDTO.getFirstname());
             String firstname = "%" + workerDTO.getFirstname() + "%";
             predicateList.add(criteriaBuilder.like(workerRoot.get("firstname"), firstname));
         }
         if (workerDTO.getLastname() != null) {
-            validation.checkText(workerDTO.getLastname());
             String lastname = "%" + workerDTO.getLastname() + "%";
             predicateList.add(criteriaBuilder.like(workerRoot.get("lastname"), lastname));
         }
         if (workerDTO.getUsername() != null) {
-//            validation.checkEmail(workerDTO.get());
             String email = "%" + workerDTO.getUsername() + "%";
             predicateList.add(criteriaBuilder.like(workerRoot.get("email"), email));
         }
-        if (workerDTO.getIsActive() != null) {
-            predicateList.add(criteriaBuilder.equal(workerRoot.get("isActive"), workerDTO.getIsActive()));
-        }
-        if (workerDTO.getUserStatus() != null) {
-            predicateList.add(criteriaBuilder.equal(workerRoot.get("workerStatus"), workerDTO.getUserStatus()));
-        }
-        if (workerDTO.getMinCredit() == null && workerDTO.getMaxCredit() != null) {
-            validation.checkPositiveNumber(workerDTO.getMaxCredit());
-            predicateList.add(criteriaBuilder.lt(workerRoot.get("credit"),
-                    workerDTO.getMaxCredit()));
-        }
-        if (workerDTO.getMinCredit() != null && workerDTO.getMaxCredit() == null) {
-            validation.checkPositiveNumber(workerDTO.getMinCredit());
-            predicateList.add(criteriaBuilder.gt(workerRoot.get("credit"),
-                    workerDTO.getMinCredit()));
-        }
-        if (workerDTO.getMinCredit() != null && workerDTO.getMaxCredit() != null) {
-            validation.checkPositiveNumber(workerDTO.getMaxCredit());
-            validation.checkPositiveNumber(workerDTO.getMinCredit());
-            predicateList.add(criteriaBuilder.between(workerRoot.get("credit"),
-                    workerDTO.getMinCredit(), workerDTO.getMaxCredit()));
-        }
-        if (workerDTO.getMinScore() == null && workerDTO.getMaxScore() != null) {
-            validation.checkPositiveNumber(workerDTO.getMaxScore());
-            predicateList.add(criteriaBuilder.lt(workerRoot.get("score"),
-                    workerDTO.getMaxScore()));
-        }
-        if (workerDTO.getMinScore() != null && workerDTO.getMaxScore() == null) {
-            validation.checkPositiveNumber(workerDTO.getMinScore());
-            predicateList.add(criteriaBuilder.gt(workerRoot.get("score"),
-                    workerDTO.getMinScore()));
-        }
-        if (workerDTO.getMinScore() != null && workerDTO.getMaxScore() != null) {
-            validation.checkPositiveNumber(workerDTO.getMaxCredit());
-            validation.checkPositiveNumber(workerDTO.getMinScore());
-            predicateList.add(criteriaBuilder.between(workerRoot.get("score"),
-                    workerDTO.getMinScore(), workerDTO.getMaxScore()));
-        }
-        if (workerDTO.getMinUserCreationAt() != null && workerDTO.getMaxUserCreationAt() != null) {
-            predicateList.add(criteriaBuilder.between(workerRoot.get("registration_time"),
-                    workerDTO.getMinUserCreationAt(), workerDTO.getMinUserCreationAt()));
-        }
-        if (workerDTO.getMinUserCreationAt() == null && workerDTO.getMaxUserCreationAt() != null) {
-            predicateList.add(criteriaBuilder.between(workerRoot.get("registration_time"),
-                    LocalDateTime.now().minusYears(5), workerDTO.getMinUserCreationAt()));
-        }
-        if (workerDTO.getMinUserCreationAt() != null && workerDTO.getMaxUserCreationAt() == null) {
-            predicateList.add(criteriaBuilder.between(workerRoot.get("registration_time"),
-                    workerDTO.getMinUserCreationAt(), LocalDateTime.now()));
-        }
 
-        if (workerDTO.getMinNumberOfOperation() != null && workerDTO.getMaxNumberOfOperation() != null) {
-            predicateList.add(criteriaBuilder.between(workerRoot.get("number_of_operation"),
-                    workerDTO.getMinNumberOfOperation(), workerDTO.getMaxNumberOfOperation()));
-        }
-        if (workerDTO.getMinNumberOfOperation() == null && workerDTO.getMaxNumberOfOperation() != null) {
-            predicateList.add(criteriaBuilder.lt(workerRoot.get("number_of_operation"),
-                    workerDTO.getMaxNumberOfOperation()));
-        }
-        if (workerDTO.getMinNumberOfOperation() != null && workerDTO.getMaxNumberOfOperation() == null) {
-            predicateList.add(criteriaBuilder.gt(workerRoot.get("number_of_operation"),
-                    workerDTO.getMinNumberOfOperation()));
-        }
-        if (workerDTO.getMinNumberOfDoneOperation() != null && workerDTO.getMaxNumberOfDoneOperation() != null) {
-            predicateList.add(criteriaBuilder.between(workerRoot.get("rate_counter"),
-                    workerDTO.getMinNumberOfDoneOperation(), workerDTO.getMaxNumberOfDoneOperation()));
-        }
-        if (workerDTO.getMinNumberOfDoneOperation() == null && workerDTO.getMaxNumberOfDoneOperation() != null) {
-            predicateList.add(criteriaBuilder.lt(workerRoot.get("rate_counter"),
-                    workerDTO.getMaxNumberOfOperation()));
-        }
-        if (workerDTO.getMinNumberOfDoneOperation() != null && workerDTO.getMaxNumberOfDoneOperation() == null) {
-            predicateList.add(criteriaBuilder.gt(workerRoot.get("rate_counter"),
-                    workerDTO.getMaxNumberOfDoneOperation()));
-        }
-        if (workerDTO.getIsActive() != null) {
+        if (workerDTO.getIsActive() != null)
             if (workerDTO.getIsActive())
-                predicateList.add(criteriaBuilder.isTrue(workerRoot.get("is-active")));
+                predicateList.add(criteriaBuilder.isTrue(workerRoot.get("isActive")));
             else
-                predicateList.add(criteriaBuilder.isFalse(workerRoot.get("is-active")));
-        }
-        if (workerDTO.getUserStatus() != null) {
+                predicateList.add(criteriaBuilder.isFalse(workerRoot.get("isActive")));
+
+        if (workerDTO.getUserStatus() != null)
             predicateList.add(criteriaBuilder.equal(workerRoot.get("status"),
                     workerDTO.getUserStatus().toString()));
-        }
 
+        if (workerDTO.getMinCredit() == null && workerDTO.getMaxCredit() != null)
+            workerDTO.setMinCredit(0L);
+        if (workerDTO.getMinCredit() != null && workerDTO.getMaxCredit() == null)
+            workerDTO.setMaxCredit(Long.MAX_VALUE);
+        if (workerDTO.getMinCredit() != null && workerDTO.getMaxCredit() != null)
+            predicateList.add(criteriaBuilder.between(workerRoot.get("credit"),
+                    workerDTO.getMinCredit(), workerDTO.getMaxCredit()));
+
+        if (workerDTO.getMinScore() == null && workerDTO.getMaxScore() != null)
+            workerDTO.setMinScore(0.0);
+        if (workerDTO.getMinScore() != null && workerDTO.getMaxScore() == null)
+            workerDTO.setMaxScore(5.0);
+        if (workerDTO.getMinScore() != null && workerDTO.getMaxScore() != null)
+            predicateList.add(criteriaBuilder.between(workerRoot.get("score"),
+                    workerDTO.getMinScore(), workerDTO.getMaxScore()));
+
+        if (workerDTO.getMinUserCreationAt() == null && workerDTO.getMaxUserCreationAt() != null)
+            workerDTO.setMinUserCreationAt(LocalDateTime.now().minusYears(2));
+        if (workerDTO.getMinUserCreationAt() != null && workerDTO.getMaxUserCreationAt() == null)
+            workerDTO.setMaxUserCreationAt(LocalDateTime.now());
+        if (workerDTO.getMinUserCreationAt() != null && workerDTO.getMaxUserCreationAt() != null)
+            predicateList.add(criteriaBuilder.between(workerRoot.get("registrationTime"),
+                    workerDTO.getMinUserCreationAt(), workerDTO.getMaxUserCreationAt()));
+
+        if (workerDTO.getMinNumberOfOperation() == null && workerDTO.getMaxNumberOfOperation() != null)
+            workerDTO.setMinNumberOfOperation(0);
+        if (workerDTO.getMinNumberOfOperation() != null && workerDTO.getMaxNumberOfOperation() == null)
+            workerDTO.setMaxNumberOfOperation(Integer.MAX_VALUE);
+        if (workerDTO.getMinNumberOfOperation() != null && workerDTO.getMaxNumberOfOperation() != null)
+            predicateList.add(criteriaBuilder.between(workerRoot.get("numberOfOperation"),
+                    workerDTO.getMinNumberOfOperation(), workerDTO.getMaxNumberOfOperation()));
+
+        if (workerDTO.getMinNumberOfDoneOperation() == null && workerDTO.getMaxNumberOfDoneOperation() != null)
+            workerDTO.setMinNumberOfDoneOperation(0);
+        if (workerDTO.getMinNumberOfDoneOperation() != null && workerDTO.getMaxNumberOfDoneOperation() == null)
+            workerDTO.setMaxNumberOfDoneOperation(Integer.MAX_VALUE);
+        if (workerDTO.getMinNumberOfDoneOperation() != null && workerDTO.getMaxNumberOfDoneOperation() != null)
+            predicateList.add(criteriaBuilder.between(workerRoot.get("rateCounter"),
+                    workerDTO.getMinNumberOfDoneOperation(), workerDTO.getMaxNumberOfDoneOperation()));
 
     }
 
