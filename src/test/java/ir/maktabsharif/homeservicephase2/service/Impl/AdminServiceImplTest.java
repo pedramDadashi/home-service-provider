@@ -102,7 +102,7 @@
 //        ADMIN_SERVICE.addWorkerToJob("room", "pedadashi@gmail.com");
 //        ADMIN_SERVICE.addWorkerToJob("wall", "milad.ah@yahoo.com");
 //        Job job = JOB_SERVICE.findByName("room").get();
-//        worker.get().getJobSet().forEach(jobb -> {
+//        worker.get().getJobList().forEach(jobb -> {
 //            if (Objects.equals(jobb.getId(), job.getId()))
 //                assertEquals(jobb.getId(), job.getId());
 //        });

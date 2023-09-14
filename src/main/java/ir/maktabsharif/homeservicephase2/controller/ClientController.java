@@ -51,13 +51,13 @@ public class ClientController {
 
     @PostMapping("/submit-order")
     public ResponseEntity<ProjectResponse> submitOrder(
-            @RequestBody @Validated SubmitOrderDTO submitOrderDTO, Authentication authentication) {
+            @RequestBody SubmitOrderDTO submitOrderDTO, Authentication authentication) {
         return ResponseEntity.ok().body(clientService.addNewOrder(
                 submitOrderDTO, ((Users) authentication.getPrincipal()).getId()));
     }
 
     @GetMapping("/show-all-orders")
-    public List<OrderResponseDTO> showAllOrders(Authentication authentication) {
+    public List<FilterOrderResponseDTO> showAllOrders(Authentication authentication) {
         return clientService.showAllOrders(
                 ((Users) authentication.getPrincipal()).getId());
     }
@@ -132,12 +132,27 @@ public class ClientController {
                 orderId, ((Users) authentication.getPrincipal()), model);
     }
 
+    @Transactional
+    @GetMapping("/increase-account-balance/{price}")
+    public ModelAndView increaseAccountBalance(
+            @PathVariable Long price, Model model, Authentication authentication) {
+        return clientService.increaseAccountBalance(
+                price, ((Users) authentication.getPrincipal()).getId(), model);
+    }
+
     @PostMapping("/send-payment-info")
     public ResponseEntity<ProjectResponse> paymentInfo(
             @ModelAttribute @Validated PaymentRequestDTO dto) {
         validation.checkPaymentRequest(dto);
         return ResponseEntity.ok().body(clientService.changeOrderStatusToPaidByOnlinePayment(
                 dto.getClientIdOrderIdDTO()));
+    }
+    @PostMapping("/send-increase-balance-info")
+    public ResponseEntity<ProjectResponse> increaseBalanceInfo(
+            @ModelAttribute @Validated BalanceRequestDTO dto) {
+        validation.checkBalanceRequest(dto);
+        return ResponseEntity.ok().body(clientService.increaseClientCredit(
+                dto.getClientIdPriceDTO()));
     }
 
 }

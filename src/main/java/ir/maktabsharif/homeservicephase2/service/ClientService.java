@@ -33,9 +33,7 @@ public interface ClientService extends UsersService<Client> {
 
     List<FilterUserResponseDTO> clientFilter(FilterUserDTO clientDTO);
 
-    List<FilterUserResponseDTO> allClient(FilterUserDTO userDTO);
-
-    String addNewClient(UserRegistrationDTO clientRegistrationDTO);
+    String addNewClient(ClientRegistrationDTO clientRegistrationDTO);
 
     ProjectResponse editPassword(ChangePasswordDTO changePasswordDTO, Long clientId);
 
@@ -53,13 +51,17 @@ public interface ClientService extends UsersService<Client> {
 
     ProjectResponse registerComment(CommentRequestDTO commentRequestDTO,Users users);
 
-    List<OrderResponseDTO> showAllOrders(Long clientId);
+    List<FilterOrderResponseDTO> showAllOrders(Long clientId);
 
     ProjectResponse changeOrderStatusToPaidByOnlinePayment(ClientIdOrderIdDTO clientIdOrderIdDTO);
+
+    ProjectResponse increaseClientCredit(ClientIdPriceDTO clientIdPriceDTO);
 
     ProjectResponse paidByInAppCredit(Long orderId, Users client);
 
     ModelAndView payByOnlinePayment(Long orderId, Users users, Model model);
+
+    ModelAndView increaseAccountBalance(Long price, Long clientId, Model model);
 
     ProjectResponse addAddress(AddressDTO addressDTO, Long clientId);
 

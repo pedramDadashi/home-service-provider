@@ -23,21 +23,23 @@ import static lombok.AccessLevel.PRIVATE;
 @AllArgsConstructor
 @FieldDefaults(level = PRIVATE)
 public class Client extends Users {
-    int paidCounter;
+
     @Enumerated(value = EnumType.STRING)
     ClientStatus clientStatus;
     @OneToMany(mappedBy = "client", cascade = MERGE, fetch = FetchType.EAGER)
     List<Address> addressList = new ArrayList<>();
-    @OneToMany(mappedBy = "client", cascade = MERGE)
+    @OneToMany(mappedBy = "client", cascade = MERGE, fetch = FetchType.EAGER)
     List<Order> orderList = new ArrayList<>();
+
+    int paidCounter;
+
+    int numberOfOperation;
 
     public Client(String firstname, String lastname, String email, String password) {
         super(firstname, lastname, email, password, Role.CLIENT);
-        this.clientStatus = ClientStatus.HAS_NOT_ORDER_YET;
+        this.clientStatus = ClientStatus.NEW;
         this.paidCounter = 0;
+        this.numberOfOperation = 0;
     }
 
-    public void paid() {
-        this.paidCounter++;
-    }
 }

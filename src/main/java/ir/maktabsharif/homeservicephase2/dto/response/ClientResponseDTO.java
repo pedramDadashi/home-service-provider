@@ -17,11 +17,17 @@ import static lombok.AccessLevel.PRIVATE;
 @FieldDefaults(level = PRIVATE)
 public class ClientResponseDTO {
 
+    Long clientId;
     String firstname;
     String lastname;
     String emailAddress;
+    Boolean isActive;
     ClientStatus clientStatus;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    Long credit;
+    int numberOfOperation;
+    int numberOfDoneOperation;
+    @JsonFormat(pattern = "yyyy-MM-dd' 'HH:mm:ss")
     LocalDateTime registrationTime;
+
 
 }

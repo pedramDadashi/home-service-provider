@@ -269,15 +269,15 @@ public class AdminServiceImpl extends BaseServiceImpl<Admin, Long, AdminReposito
     @Override
     public List<FilterUserResponseDTO> userFilter(FilterUserDTO userDTO) {
         List<FilterUserResponseDTO> filterUserResponseDTOList = new ArrayList<>();
-        if (userDTO.getUserType().isEmpty() ||
-            userDTO.getUserType().equals(CLIENT.name()))
+        if (userDTO.getUserType().equals(CLIENT.name())) {
             filterUserResponseDTOList.addAll(clientService.clientFilter(userDTO));
-        if (userDTO.getUserType().isEmpty() ||
-            userDTO.getUserType().equals(WORKER.name()))
+        }
+        if (userDTO.getUserType().equals(WORKER.name())) {
             filterUserResponseDTOList.addAll(workerService.workerFilter(userDTO));
+        }
         if (userDTO.getUserType().equals("ALL")) {
-            filterUserResponseDTOList.addAll(clientService.allClient(userDTO));
-            filterUserResponseDTOList.addAll(workerService.allWorker(userDTO));
+            filterUserResponseDTOList.addAll(clientService.clientFilter(userDTO));
+            filterUserResponseDTOList.addAll(workerService.workerFilter(userDTO));
         }
         return filterUserResponseDTOList;
     }
@@ -291,18 +291,4 @@ public class AdminServiceImpl extends BaseServiceImpl<Admin, Long, AdminReposito
     public Optional<Admin> findByUsername(String email) {
         return repository.findByEmail(email);
     }
-
-//    @Override
-//    public List<FilterWorkerResponseDTO> userFilter(FilterWorkerDTO workerDTO) {
-//        return null;
-//    }
-//
-//    @Override
-//    public List<FilterWorkerResponseDTO> userFilter(FilterWorkerDTO userDTO) {
-//        List<FilterWorkerResponseDTO> furd
-//        if (userDTO.getUserType().equals("worker"))
-//            return workerService.workerFilter(userDTO);
-//        if (userDTO.getUserType().equals("client"))
-//            return workerService.workerFilter(userDTO);
-//    }
 }
