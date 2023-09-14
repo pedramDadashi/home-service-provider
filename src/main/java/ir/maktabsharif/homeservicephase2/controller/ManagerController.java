@@ -7,9 +7,7 @@ import ir.maktabsharif.homeservicephase2.entity.user.Admin;
 import ir.maktabsharif.homeservicephase2.service.AdminService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,78 +26,72 @@ public class ManagerController extends AdminController {
 
     @GetMapping("/show-app-credit")
     public Long showAppCredit(Authentication authentication) {
-        Admin manager = (Admin) authentication.getPrincipal();
-        return adminService.findById(manager.getId()).get().getCredit();
+        return adminService.findById(((Admin) authentication.getPrincipal()).getId()).get().getCredit();
     }
 
-    @Override
+    @GetMapping("/show-all-main-services")
     public List<MainServiceResponseDTO> findAllMainServices() {
         return super.findAllMainServices();
     }
 
-    @Override
+    @PostMapping("/add-main-service")
     public ResponseEntity<ProjectResponse> addMainService(
-            MainServiceRequestDTO mainServiceRequestDTO) {
+            @RequestBody MainServiceRequestDTO mainServiceRequestDTO) {
         return super.addMainService(mainServiceRequestDTO);
     }
 
-    @Override
-    public ResponseEntity<ProjectResponse> deleteMainService(String name) {
+    @DeleteMapping("/delete-main-service/{name}")
+    public ResponseEntity<ProjectResponse> deleteMainService(@PathVariable String name) {
         return super.deleteMainService(name);
     }
 
-    @Override
+    @GetMapping("/show-all-jobs")
     public List<JobResponseDTO> findAllJobs() {
         return super.findAllJobs();
     }
 
-    @Override
-    public List<JobResponseDTO> findAllJobsByMainService(Long mainServiceId) {
+    @GetMapping("/show-all-jobs-by-main-service/{mainServiceId}")
+    public List<JobResponseDTO> findAllJobsByMainService(@PathVariable Long mainServiceId) {
         return super.findAllJobsByMainService(mainServiceId);
     }
 
-    @Override
-    public ResponseEntity<ProjectResponse> addJob(JobRequestDTO jobRequestDTO) {
+    @PostMapping("/add-job")
+    public ResponseEntity<ProjectResponse> addJob(@RequestBody JobRequestDTO jobRequestDTO) {
         return super.addJob(jobRequestDTO);
     }
 
-    @Override
-    public ResponseEntity<ProjectResponse> editJobCustom(
-            UpdateJobDTO updateJobDTO) {
+    @PutMapping("/edit-job-custom")
+    public ResponseEntity<ProjectResponse> editJobCustom(@RequestBody UpdateJobDTO updateJobDTO) {
         return super.editJobCustom(updateJobDTO);
     }
 
-    @Override
-    public ResponseEntity<ProjectResponse> addWorkerToJob(
-            Long jobId, Long workerId) {
+    @PostMapping("/add-worker-to-job/{jobId}/{workerId}")
+    public ResponseEntity<ProjectResponse> addWorkerToJob(@PathVariable Long jobId, @PathVariable Long workerId) {
         return super.addWorkerToJob(jobId, workerId);
     }
 
-    @Override
-    public ResponseEntity<ProjectResponse> deleteJobFromWorker(
-            Long jobId, Long workerId) {
+    @DeleteMapping("/delete-job-form-worker/{jobId}/{workerId}")
+    public ResponseEntity<ProjectResponse> deleteJobFromWorker(@PathVariable Long jobId, @PathVariable Long workerId) {
         return super.deleteJobFromWorker(jobId, workerId);
     }
 
-    @Override
-    public ResponseEntity<ProjectResponse> confirmWorker(
-            Long workerId) {
+    @PutMapping("/confirm-worker/{workerId}")
+    public ResponseEntity<ProjectResponse> confirmWorker(@PathVariable Long workerId) {
         return super.confirmWorker(workerId);
     }
 
-    @Override
-    public ResponseEntity<ProjectResponse> disableWorker(
-            Long workerId) {
+    @PutMapping("/disable-worker/{workerId}")
+    public ResponseEntity<ProjectResponse> disableWorker(@PathVariable Long workerId) {
         return super.disableWorker(workerId);
     }
 
-    @Override
-    public List<FilterUserResponseDTO> userFilter(FilterUserDTO userDTO) {
+    @PostMapping("/filter-users")
+    public List<FilterUserResponseDTO> userFilter(@RequestBody FilterUserDTO userDTO) {
         return super.userFilter(userDTO);
     }
 
-    @Override
-    public List<FilterOrderResponseDTO> orderFilter(FilterOrderDTO orderDTO) {
+    @PostMapping("/filter-order")
+    public List<FilterOrderResponseDTO> orderFilter(@RequestBody FilterOrderDTO orderDTO) {
         return super.orderFilter(orderDTO);
     }
 }
