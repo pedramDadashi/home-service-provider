@@ -1,6 +1,7 @@
 package ir.maktabsharif.homeservicephase2.util;
 
 import ir.maktabsharif.homeservicephase2.dto.request.AddressDTO;
+import ir.maktabsharif.homeservicephase2.dto.request.BalanceRequestDTO;
 import ir.maktabsharif.homeservicephase2.dto.request.PaymentRequestDTO;
 import ir.maktabsharif.homeservicephase2.entity.user.Client;
 import ir.maktabsharif.homeservicephase2.entity.user.Worker;
@@ -95,6 +96,19 @@ public class Validation {
     }
 
     public boolean checkPaymentRequest(PaymentRequestDTO dto) {
+        if (!dto.getCaptcha().equals(dto.getHidden())) {
+            throw new CaptchaException("wrong captcha");
+        }
+        if (Integer.parseInt(dto.getYear()) < LocalDateTime.now().getYear()) {
+            throw new DateTimeException("expired card ");
+        }
+        if (Integer.parseInt(dto.getYear()) == LocalDateTime.now().getYear() &&
+            Integer.parseInt(dto.getMonth()) < LocalDateTime.now().getMonth().getValue()) {
+            throw new DateTimeException("expired card ");
+        }
+        return true;
+    }
+    public boolean checkBalanceRequest(BalanceRequestDTO dto) {
         if (!dto.getCaptcha().equals(dto.getHidden())) {
             throw new CaptchaException("wrong captcha");
         }

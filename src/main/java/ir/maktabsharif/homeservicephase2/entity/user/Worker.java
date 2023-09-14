@@ -12,9 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -24,7 +22,7 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = PRIVATE)
-public class Worker extends Users {
+public class Worker extends Users  {
     @Lob
     byte[] image;
     double score;
@@ -32,13 +30,15 @@ public class Worker extends Users {
     String province;
     @Enumerated(value = EnumType.STRING)
     WorkerStatus status;
-    @ManyToMany(mappedBy = "workerSet", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    Set<Job> jobSet = new HashSet<>();
+    @ManyToMany(mappedBy = "workerList", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    List<Job> jobList = new ArrayList<>();
     @OneToMany(mappedBy = "worker")
     List<Offer> offerList = new ArrayList<>();
+    int paidCounter ;
+    int numberOfOperation ;
 
     public Worker(String firstname, String lastname, String email, String password,
-                  String province,byte[] image) {
+                  String province, byte[] image) {
         super(firstname, lastname, email, password, Role.WORKER);
         this.score = 0;
         this.rateCounter = 0;
@@ -47,18 +47,28 @@ public class Worker extends Users {
         this.image = image;
     }
 
+    public Worker(String firstname, String lastname, String email, String password,
+                  String province) {
+        super(firstname, lastname, email, password, Role.WORKER);
+        this.score = 0;
+        this.rateCounter = 0;
+        this.status = WorkerStatus.NEW;
+        this.province = province;
+    }
+
     public void addJob(Job job) {
-        this.jobSet.add(job);
+        this.jobList.add(job);
         job.getWorkerSet().add(this);
     }
 
     public void deleteJob(Job job) {
-        this.jobSet.remove(job);
+        this.jobList.remove(job);
         job.getWorkerSet().remove(this);
     }
 
     public void rate(int score) {
-        this.score = ((this.score * this.rateCounter) + score) / (this.rateCounter++);
+
+        this.score = ((this.score * this.rateCounter) + score) / (this.rateCounter+1);
     }
 
     public void delay(int hours) {

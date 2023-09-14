@@ -33,7 +33,6 @@ public abstract class Users extends BaseEntity<Long> implements UserDetails {
     Long credit;
     @Enumerated(value = EnumType.STRING)
     Role role;
-    int numberOfOperation;
 
     public Users(String firstname, String lastname, String email, String password, Role role) {
         this.firstname = firstname;
@@ -42,12 +41,6 @@ public abstract class Users extends BaseEntity<Long> implements UserDetails {
         this.password = password;
         this.role = role;
         this.credit = 0L;
-        this.numberOfOperation = 0;
-    }
-
-    public boolean increaseNumberOfOperation() {
-        this.numberOfOperation++;
-        return true;
     }
 
     @Override
