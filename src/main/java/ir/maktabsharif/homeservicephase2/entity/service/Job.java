@@ -33,7 +33,7 @@ public class Job extends BaseEntity<Long> {
     @ManyToOne
     MainService mainService;
     @ManyToMany(cascade = ALL, fetch = EAGER)
-    List<Worker> worketList = new ArrayList<>();
+    List<Worker> workerList = new ArrayList<>();
     @OneToMany(mappedBy = "job")
     List<Order> orderList = new ArrayList<>();
 

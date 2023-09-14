@@ -22,7 +22,7 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = PRIVATE)
-public class Worker extends Users  {
+public class Worker extends Users {
     @Lob
     byte[] image;
     double score;
@@ -34,8 +34,8 @@ public class Worker extends Users  {
     List<Job> jobList = new ArrayList<>();
     @OneToMany(mappedBy = "worker")
     List<Offer> offerList = new ArrayList<>();
-    int paidCounter ;
-    int numberOfOperation ;
+    int paidCounter;
+    int numberOfOperation;
 
     public Worker(String firstname, String lastname, String email, String password,
                   String province, byte[] image) {
@@ -47,28 +47,19 @@ public class Worker extends Users  {
         this.image = image;
     }
 
-    public Worker(String firstname, String lastname, String email, String password,
-                  String province) {
-        super(firstname, lastname, email, password, Role.WORKER);
-        this.score = 0;
-        this.rateCounter = 0;
-        this.status = WorkerStatus.NEW;
-        this.province = province;
-    }
-
     public void addJob(Job job) {
         this.jobList.add(job);
-        job.getWorkerSet().add(this);
+        job.getWorkerList().add(this);
     }
 
     public void deleteJob(Job job) {
         this.jobList.remove(job);
-        job.getWorkerSet().remove(this);
+        job.getWorkerList().remove(this);
     }
 
     public void rate(int score) {
 
-        this.score = ((this.score * this.rateCounter) + score) / (this.rateCounter+1);
+        this.score = ((this.score * this.rateCounter) + score) / (this.rateCounter + 1);
     }
 
     public void delay(int hours) {

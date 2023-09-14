@@ -365,7 +365,10 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         validation.checkPositiveNumber(orderId);
         validation.checkOwnerOfTheOrder(orderId, (Client) users);
         List<OfferResponseDTO> orDTOS = new ArrayList<>();
-        offerService.findOfferListByOrderIdBasedOnProposedPrice(orderId).forEach(
+        List<Offer> list = offerService.findOfferListByOrderIdBasedOnProposedPrice(orderId);
+        if (list.isEmpty())
+            return orDTOS;
+        list.forEach(
                 o -> orDTOS.add(offerMapper.convertToDTO(o)));
         return orDTOS;
     }
@@ -376,7 +379,10 @@ public class ClientServiceImpl extends BaseServiceImpl<Client, Long, ClientRepos
         validation.checkPositiveNumber(orderId);
         validation.checkOwnerOfTheOrder(orderId, (Client) users);
         List<OfferResponseDTO> orDTOS = new ArrayList<>();
-        offerService.findOfferListByOrderIdBasedOnWorkerScore(orderId).forEach(
+        List<Offer> list = offerService.findOfferListByOrderIdBasedOnWorkerScore(orderId);
+        if (list.isEmpty())
+            return orDTOS;
+        list.forEach(
                 o -> orDTOS.add(offerMapper.convertToDTO(o)));
         return orDTOS;
     }

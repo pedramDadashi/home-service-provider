@@ -33,16 +33,14 @@ public class WorkerMapper {
     }
 
     public Worker convertToNewWorker(WorkerRegistrationDTO workerRegistrationDTO) throws IOException {
-        Worker worker = new Worker(
+        return new Worker(
                 workerRegistrationDTO.getFirstname(),
                 workerRegistrationDTO.getLastname(),
                 workerRegistrationDTO.getEmail(),
                 passwordEncoder.encode(workerRegistrationDTO.getPassword()),
-                workerRegistrationDTO.getProvince()
+                workerRegistrationDTO.getProvince(),
+                workerRegistrationDTO.getFile().getBytes()
         );
-            worker.setImage(workerRegistrationDTO.getFile().getBytes());
-
-        return worker;
     }
 
     public FilterUserResponseDTO convertToFilterDTO(Worker worker) {
