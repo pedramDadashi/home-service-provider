@@ -1,21 +1,20 @@
 package ir.maktabsharif.homeservicephase2.dto.request;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import static lombok.AccessLevel.PRIVATE;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = PRIVATE)
-public class ClientUpdateDTO {
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class BalancePageDTO {
+    Long price;
+    String captcha;
+    String hidden;
+    String image;
+    Long clientId;
 
-    String firstname;
-    String lastname;
-    String emailAddress;
-    String username;
-    Long credit;
 }
